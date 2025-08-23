@@ -5,18 +5,14 @@ const xml2js = require('xml2js');
 const parseXml = (xml) => {
     return new Promise((resolve, reject) => {
         xml2js.parseString(xml, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
+            if (err) reject(err);
+            else resolve(result);
         });
     });
 };
 
-// De hoofd-handler, nu met de correcte 'module.exports' syntax
+// De hoofd-handler, nu met robuuste data-extractie
 module.exports = async (request, response) => {
-    // Sta alleen POST requests toe
     if (request.method !== 'POST') {
         return response.status(405).json({ message: 'Alleen POST requests zijn toegestaan.' });
     }
@@ -27,45 +23,34 @@ module.exports = async (request, response) => {
             return response.status(400).json({ message: 'Zoekterm ontbreekt.' });
         }
 
-        // Bouw de URL voor de Rechtspraak.nl API
         const apiUrl = `http://data.rechtspraak.nl/uitspraken/zoeken?q=${encodeURIComponent(query)}&max=20`;
-
-        // Haal de data op van de API
         const apiResponse = await axios.get(apiUrl);
-        const xmlData = apiResponse.data;
-
-        // Parse de XML data naar een JavaScript object
-        const parsedData = await parseXml(xmlData);
+        const parsedData = await parseXml(apiResponse.data);
         
-        const entries = parsedData.feed.entry;
+        // Veilige controle of er überhaupt entries zijn
+        const entries = parsedData?.feed?.entry;
 
-        // Controleer of er resultaten zijn
-        if (!entries || entries.length === 0) {
+        if (!entries || !Array.isArray(entries) || entries.length === 0) {
             return response.status(200).json([]);
         }
 
-        // Vertaal de resultaten naar een schone JSON structuur
+        // Vertaal de resultaten naar een schone JSON structuur (nu 'hufterproof')
         const cleanResults = entries.map(entry => {
-            // Soms is de summary een object, soms een string. Dit vangt beide gevallen op.
-            let summaryText = 'Geen samenvatting beschikbaar.';
-            if (entry.summary && entry.summary[0]) {
-                if (typeof entry.summary[0] === 'object' && entry.summary[0]._) {
-                    summaryText = entry.summary[0]._;
-                } else if (typeof entry.summary[0] === 'string') {
-                    summaryText = entry.summary[0];
-                }
+            // Veilige manier om data te krijgen, met fallbacks
+            const id = entry?.id?.[0] ?? 'ID Onbekend';
+            const title = entry?.title?.[0] ?? 'Titel Onbekend';
+            const updated = entry?.updated?.[0] ?? new Date().toISOString();
+            const link = entry?.link?.[0]?.$?.href ?? '#';
+            
+            let summary = 'Geen samenvatting beschikbaar.';
+            if (entry?.summary?.[0]) {
+                const summaryNode = entry.summary[0];
+                summary = (typeof summaryNode === 'object' && summaryNode._) ? summaryNode._ : summaryNode;
             }
 
-            return {
-                id: entry.id[0],
-                title: entry.title[0],
-                summary: summaryText,
-                updated: entry.updated[0],
-                link: entry.link[0].$.href
-            };
+            return { id, title, summary, updated, link };
         });
 
-        // Stuur de schone resultaten terug
         response.status(200).json(cleanResults);
 
     } catch (error) {
