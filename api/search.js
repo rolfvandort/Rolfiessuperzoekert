@@ -11,32 +11,35 @@ const parseXml = (xml) => {
     });
 };
 
-// De hoofd-handler, nu met robuuste data-extractie
-module.exports = async (request, response) => {
-    if (request.method !== 'POST') {
-        return response.status(405).json({ message: 'Alleen POST requests zijn toegestaan.' });
-    }
+// De hoofd-handler, nu met de juiste startknop: 'exports.handler'
+exports.handler = async (event, context) => {
+    // Netlify stuurt data bij een POST-request in event.body
+    // Dit moet worden geparsed van een string naar een object
+    const body = JSON.parse(event.body);
+    const { query } = body;
 
     try {
-        const { query } = request.body;
         if (!query) {
-            return response.status(400).json({ message: 'Zoekterm ontbreekt.' });
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ message: 'Zoekterm ontbreekt.' })
+            };
         }
 
         const apiUrl = `http://data.rechtspraak.nl/uitspraken/zoeken?q=${encodeURIComponent(query)}&max=20`;
         const apiResponse = await axios.get(apiUrl);
         const parsedData = await parseXml(apiResponse.data);
         
-        // Veilige controle of er überhaupt entries zijn
         const entries = parsedData?.feed?.entry;
 
         if (!entries || !Array.isArray(entries) || entries.length === 0) {
-            return response.status(200).json([]);
+            return {
+                statusCode: 200,
+                body: JSON.stringify([])
+            };
         }
 
-        // Vertaal de resultaten naar een schone JSON structuur (nu 'hufterproof')
         const cleanResults = entries.map(entry => {
-            // Veilige manier om data te krijgen, met fallbacks
             const id = entry?.id?.[0] ?? 'ID Onbekend';
             const title = entry?.title?.[0] ?? 'Titel Onbekend';
             const updated = entry?.updated?.[0] ?? new Date().toISOString();
@@ -51,10 +54,17 @@ module.exports = async (request, response) => {
             return { id, title, summary, updated, link };
         });
 
-        response.status(200).json(cleanResults);
+        // Voor Netlify moeten we het antwoord in een specifiek format teruggeven
+        return {
+            statusCode: 200,
+            body: JSON.stringify(cleanResults)
+        };
 
     } catch (error) {
         console.error('Fout in serverless functie:', error);
-        response.status(500).json({ message: 'Er is een interne fout opgetreden.', error: error.message });
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ message: 'Er is een interne fout opgetreden.', error: error.message })
+        };
     }
 };
