@@ -14,8 +14,8 @@ const parseXml = (xml) => {
     });
 };
 
-// De hoofd-handler voor de serverless functie
-export default async function handler(request, response) {
+// De hoofd-handler, nu met de correcte 'module.exports' syntax
+module.exports = async (request, response) => {
     // Sta alleen POST requests toe
     if (request.method !== 'POST') {
         return response.status(405).json({ message: 'Alleen POST requests zijn toegestaan.' });
@@ -46,10 +46,20 @@ export default async function handler(request, response) {
 
         // Vertaal de resultaten naar een schone JSON structuur
         const cleanResults = entries.map(entry => {
+            // Soms is de summary een object, soms een string. Dit vangt beide gevallen op.
+            let summaryText = 'Geen samenvatting beschikbaar.';
+            if (entry.summary && entry.summary[0]) {
+                if (typeof entry.summary[0] === 'object' && entry.summary[0]._) {
+                    summaryText = entry.summary[0]._;
+                } else if (typeof entry.summary[0] === 'string') {
+                    summaryText = entry.summary[0];
+                }
+            }
+
             return {
                 id: entry.id[0],
                 title: entry.title[0],
-                summary: entry.summary[0]._,
+                summary: summaryText,
                 updated: entry.updated[0],
                 link: entry.link[0].$.href
             };
@@ -62,4 +72,4 @@ export default async function handler(request, response) {
         console.error('Fout in serverless functie:', error);
         response.status(500).json({ message: 'Er is een interne fout opgetreden.', error: error.message });
     }
-}
+};
