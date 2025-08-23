@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rolfies Superzoeker (Prototype)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f9; }
+        .bg-primary { background-color: #0E3190; }
+        .text-primary { color: #0E3190; }
+        .border-primary { border-color: #0E3190; }
+        .hover\:bg-primary-dark:hover { background-color: #0A246A; }
+        .bg-accent { background-color: #19AACD; }
+        .text-accent { color: #19AACD; }
+        .border-accent { border-color: #19AACD; }
+        .bg-subtle { background-color: #F8FBFC; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Specifieke stijlen voor geselecteerde items */
+        .result-item-selected {
+            background-color: #EBF8FF !important;
+            border-color: #19AACD !important;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div id="jurisprudentie-page">
+        <div class="flex flex-col h-screen bg-subtle">
+            <header class="bg-white shadow-md w-full p-4 flex justify-between items-center z-10 shrink-0">
+                <div class="flex items-center">
+                    <img src="https://i.postimg.cc/B690tTpb/temp-Image8-Bf-XYq.avif" alt="Van Dort Letselschade Logo" class="h-12 mr-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-primary">Rolfies Superzoeker</h1>
+                        <p class="text-sm text-gray-500">AI-Powered Jurisprudentie Navigator (Prototype)</p>
+                    </div>
+                </div>
+                <button class="text-sm font-medium text-gray-400 cursor-not-allowed">&larr; Terug naar Hub (uitgeschakeld in prototype)</button>
+            </header>
+
+            <main class="flex-grow grid grid-cols-12 gap-4 p-4 overflow-hidden">
+
+                <aside class="col-span-12 lg:col-span-3 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+                    <div class="p-4 border-b">
+                        <h2 class="text-lg font-semibold text-primary">Zoekopdracht</h2>
+                    </div>
+                    <div class="p-4 space-y-6 overflow-y-auto">
+                        <div>
+                            <label for="jurisprudentie-omnibox" class="text-sm font-medium text-gray-700">Slimme Zoekopdracht (AI Copiloot)</label>
+                            <textarea id="jurisprudentie-omnibox" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" placeholder="Stel een vraag of voer trefwoorden in..."></textarea>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">Doorzoek de volgende bronnen:</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" checked> <span class="ml-2 text-gray-800">Rechtspraak.nl</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"> <span class="ml-2 text-gray-800">EUR-Lex</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"> <span class="ml-2 text-gray-800">Overheid.nl (Wetten)</span></label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-md font-semibold text-gray-800 border-t pt-4">Filters</h3>
+                            <div class="space-y-4 mt-2">
+                                <div><label class="text-sm font-medium">Datum na:</label><input type="date" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
+                                <div><label class="text-sm font-medium">Datum voor:</label><input type="date" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
+                                <div>
+                                    <label class="text-sm font-medium">Instantie:</label>
+                                    <select class="mt-1 w-full rounded-md border-gray-300 text-sm"><option>Alle</option><option>Hoge Raad</option><option>Gerechtshof 's-Hertogenbosch</option></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-auto p-4 border-t bg-gray-50">
+                        <button id="jurisprudentie-search-button" class="w-full bg-accent hover:bg-opacity-90 text-white font-bold py-3 rounded-lg shadow-sm">Zoeken</button>
+                    </div>
+                </aside>
+
+                <section class="col-span-12 lg:col-span-4 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+                    <div class="p-4 border-b flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-primary">Resultaten (<span id="jurisprudentie-result-count">0</span>)</h2>
+                        <div class="text-sm">
+                            Sorteer op: <button class="font-semibold text-primary">Relevantie</button> | <button class="text-gray-500 hover:text-gray-800">Datum</button>
+                        </div>
+                    </div>
+                    <div id="jurisprudentie-results-list" class="overflow-y-auto p-2 space-y-2">
+                        <div class="text-center p-10 text-gray-500">
+                            Voer een zoekopdracht in om te beginnen.
+                        </div>
+                    </div>
+                </section>
+
+                <article class="col-span-12 lg:col-span-5 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+                    <div id="jurisprudentie-detail-pane-placeholder" class="flex flex-col items-center justify-center h-full text-center text-gray-500 p-8">
+                         <svg class="h-12 w-12 text-gray-300 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                        <h3 class="font-semibold text-lg text-gray-700">Selecteer een uitspraak</h3>
+                        <p>Klik op een resultaat in de lijst om hier de details en AI-analyse te bekijken.</p>
+                    </div>
+                    <div id="jurisprudentie-detail-pane-content" class="hidden flex-col h-full">
+                        <div class="border-b border-gray-200">
+                            <nav id="jurisprudentie-detail-tabs" class="-mb-px flex space-x-6 px-4" aria-label="Tabs">
+                                </nav>
+                        </div>
+                        <div id="jurisprudentie-detail-tab-content" class="p-4 overflow-y-auto">
+                            </div>
+                    </div>
+                </article>
+            </main>
+        </div>
+    </div>
+    
+    <div id="notification" class="hidden"></div>
+    <div id="modal-container"></div>
+
+
+    <script type="module">
+    // --- START PROTOTYPE LOGICA VOOR ROLFIES SUPERZOEKER ---
+
+    // --- DOM-elementen ---
+    const searchButton = document.getElementById('jurisprudentie-search-button');
+    const resultsList = document.getElementById('jurisprudentie-results-list');
+    const resultCount = document.getElementById('jurisprudentie-result-count');
+    const detailPanePlaceholder = document.getElementById('jurisprudentie-detail-pane-placeholder');
+    const detailPaneContent = document.getElementById('jurisprudentie-detail-pane-content');
+    const detailTabsContainer = document.getElementById('jurisprudentie-detail-tabs');
+    const detailTabContentContainer = document.getElementById('jurisprudentie-detail-tab-content');
+
+    // --- Placeholder Data ---
+    const fakeResultsDatabase = [
+        { 
+            id: 'ECLI:NL:HR:2025:123', 
+            title: 'Arrest over causaal verband bij whiplash', 
+            instantie: 'Hoge Raad', 
+            datum: '2025-05-20', 
+            gezagScore: 98,
+            summary: 'De Hoge Raad verduidelijkt in dit arrest de omkeringsregel met betrekking tot het causaal verband tussen een ongeval en niet-objectiveerbare klachten zoals bij een whiplash. Het ontbreken van een medisch substraat staat aan het aannemen van causaal verband niet in de weg.',
+            rechtsvraag: 'Dient de omkeringsregel toegepast te worden bij het vaststellen van causaal verband voor whiplash-gerelateerde klachten zonder medisch aantoonbaar letsel?',
+            kern: 'r.o. 3.4.2: Voor de toepassing van de omkeringsregel is het voldoende dat de benadeelde feiten en omstandigheden stelt en, bij betwisting, aannemelijk maakt waaruit volgt dat de klachten door het ongeval kunnen zijn veroorzaakt.'
+        },
+        { 
+            id: 'ECLI:NL:GHSHE:2024:456', 
+            title: 'Schadevergoeding voor valpartij op spekgladde stoep', 
+            instantie: 'Gerechtshof \'s-Hertogenbosch', 
+            datum: '2024-11-08', 
+            gezagScore: 75,
+            summary: 'Het hof oordeelt dat de gemeente haar zorgplicht heeft geschonden door niet adequaat te strooien tijdens verwachte ijzel. De valpartij en de daaruit voortvloeiende letselschade worden aan de gemeente toegerekend.',
+            rechtsvraag: 'Heeft de gemeente voldaan aan haar zorgplicht om gladheid op openbare wegen en stoepen te bestrijden?',
+            kern: 'r.o. 5.1: Een algemene gladheidswaarschuwing van het KNMI brengt voor de wegbeheerder een verhoogde zorgplicht met zich mee, die verder gaat dan enkel het uitvoeren van een standaard strooiplan.'
+        },
+        { 
+            id: 'ECLI:NL:RBLIM:2025:789', 
+            title: 'Verlies aan verdienvermogen voor jonge ZZP\'er', 
+            instantie: 'Rechtbank Limburg', 
+            datum: '2025-01-30', 
+            gezagScore: 68,
+            summary: 'De rechtbank stelt de schade door verlies aan verdienvermogen van een jonge, startende ZZP\'er vast. Hierbij wordt een concrete en gedetailleerde schatting gemaakt van de hypothetische carrière zonder ongeval.',
+            rechtsvraag: 'Hoe dient de schade wegens verlies aan verdienvermogen te worden berekend voor een slachtoffer met een korte en nog niet gestabiliseerde carrière als zelfstandige?',
+            kern: 'r.o. 4.8: Bij de begroting van de schade moet rekening worden gehouden met concrete en onderbouwde toekomstplannen en de potentie van de onderneming, waarbij niet louter naar het verleden wordt gekeken.'
+        },
+        {
+            id: 'ECLI:EU:C:2023:321',
+            title: 'HvJ-EU over passagiersrechten bij vertraging',
+            instantie: 'Hof van Justitie EU',
+            datum: '2023-09-14',
+            gezagScore: 82,
+            summary: 'Het Hof van Justitie legt Verordening 261/2004 uit en stelt dat een technisch mankement dat inherent is aan de normale uitoefening van de activiteit van de luchtvaartmaatschappij geen "buitengewone omstandigheid" vormt.',
+            rechtsvraag: 'Valt een onvoorzien technisch probleem onder het begrip "buitengewone omstandigheden" in de zin van art. 5 lid 3 van Verordening 261/2004?',
+            kern: 'Dictum: Een technisch probleem dat aan het licht komt tijdens het onderhoud van een luchtvaartuig of wordt veroorzaakt door een gebrek aan onderhoud, vormt geen buitengewone omstandigheid.'
+        }
+    ];
+
+    // --- Functies voor weergave ---
+
+    /**
+     * Genereert een HTML-kaart voor een enkel zoekresultaat.
+     * @param {object} result - Het resultaatobject.
+     * @returns {string} De HTML-string voor de kaart.
+     */
+    function createResultCard(result) {
+        const scoreColor = result.gezagScore > 85 ? 'bg-green-100 text-green-800' : (result.gezagScore > 70 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800');
+        return `
+            <div class="p-3 border rounded-md hover:bg-subtle hover:shadow-md cursor-pointer jurisprudentie-result-item border-l-4 border-transparent" data-id="${result.id}">
+                <div class="flex justify-between items-start gap-2">
+                    <h4 class="font-semibold text-primary text-md">${result.title}</h4>
+                    <span class="text-xs font-bold px-2 py-1 rounded-full ${scoreColor} flex-shrink-0">${result.gezagScore}</span>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    <span>${result.instantie}</span> | <span>${result.datum}</span> | <span>${result.id}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    /**
+     * Vult de rechterkolom met de details en tabs van een geselecteerd resultaat.
+     * @param {string} resultId - De ECLI/ID van het geselecteerde resultaat.
+     * @param {string} activeTabId - De ID van de tab die actief moet zijn ('ai', 'text', 'network').
+     */
+    function renderDetailTabs(resultId, activeTabId = 'ai') {
+        const resultData = fakeResultsDatabase.find(r => r.id === resultId);
+        if (!resultData) return;
+
+        const tabs = [
+            { id: 'ai', name: 'AI Analyse & Kern' },
+            { id: 'text', name: 'Volledige Tekst' },
+            { id: 'network', name: 'Citaties' },
+        ];
+
+        // Genereer de tab-knoppen
+        detailTabsContainer.innerHTML = tabs.map(tab => {
+            const isActive = tab.id === activeTabId;
+            const classes = isActive 
+                ? 'border-primary text-primary font-semibold' 
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+            return `<button data-tab-id="${tab.id}" data-result-id="${resultId}" class="jurisprudentie-tab-button whitespace-nowrap py-3 px-1 border-b-2 text-sm ${classes}">${tab.name}</button>`;
+        }).join('');
+
+        // Genereer de content voor de actieve tab
+        let content = '';
+        switch(activeTabId) {
+            case 'ai':
+                content = `
+                    <div class="space-y-6 animate-fade-in">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">AI Samenvatting</h3>
+                            <p class="mt-1 text-gray-800 bg-subtle p-3 rounded-md border">${resultData.summary}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Rechtsvraag</h3>
+                            <p class="mt-1 text-gray-800">${resultData.rechtsvraag}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Kernoverweging</h3>
+                            <blockquote class="mt-1 border-l-4 border-accent pl-4 italic text-gray-700">${resultData.kern}</blockquote>
+                        </div>
+                    </div>`;
+                break;
+            case 'text':
+                content = `<div class="prose prose-sm max-w-none"><p>De volledige, doorzoekbare tekst van uitspraak <strong>${resultId}</strong> wordt hier weergegeven. In de uiteindelijke versie zal dit de officiële tekst van de uitspraak zijn, opgemaakt voor optimale leesbaarheid.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p></div>`;
+                break;
+            case 'network':
+                content = `<p class="text-gray-600">Een visuele weergave van het citatienetwerk voor <strong>${resultId}</strong> komt hier. Je zult kunnen zien welke andere uitspraken naar deze zaak verwijzen en naar welke zaken deze uitspraak zelf verwijst.</p>`;
+                break;
+        }
+        detailTabContentContainer.innerHTML = content;
+    }
+
+
+    // --- Event Handlers ---
+
+    /**
+     * Handler voor de hoofdzoekknop. Simuleert een zoekopdracht.
+     */
+    function handleJurisprudentieSearch() {
+        // 1. Toon een laad-status
+        resultsList.innerHTML = `<div class="text-center p-10 text-gray-500">Resultaten worden geladen...</div>`;
+        resultCount.textContent = '...';
+
+        // 2. Simuleer een netwerkvertraging
+        setTimeout(() => {
+            // 3. Haal de nep-resultaten op
+            const results = fakeResultsDatabase;
+            
+            // 4. Update de UI met de resultaten
+            resultCount.textContent = results.length;
+            if (results.length > 0) {
+                resultsList.innerHTML = results.map(createResultCard).join('');
+            } else {
+                resultsList.innerHTML = `<div class="text-center p-10 text-gray-500">Geen resultaten gevonden.</div>`;
+            }
+            
+            // Maak detail paneel weer leeg
+            detailPanePlaceholder.classList.remove('hidden');
+            detailPaneContent.classList.add('hidden');
+
+        }, 800); // 0.8 seconde vertraging
+    }
+
+    /**
+     * Handler voor klikken op een resultaat in de lijst.
+     * @param {Event} e - Het click event.
+     */
+    function handleResultClick(e) {
+        const resultItem = e.target.closest('.jurisprudentie-result-item');
+        if (!resultItem) return;
+
+        const resultId = resultItem.dataset.id;
+        
+        // Update de visuele selectie
+        document.querySelectorAll('.jurisprudentie-result-item').forEach(el => {
+            el.classList.remove('result-item-selected');
+        });
+        resultItem.classList.add('result-item-selected');
+
+        // Toon het detail paneel en verberg de placeholder
+        detailPanePlaceholder.classList.add('hidden');
+        detailPaneContent.classList.remove('hidden');
+        detailPaneContent.classList.add('flex');
+
+        // Laad de content voor het geselecteerde item
+        renderDetailTabs(resultId, 'ai');
+    }
+    
+    /**
+     * Handler voor het klikken op een tab in het detail paneel.
+     * @param {Event} e - Het click event.
+     */
+    function handleTabClick(e) {
+        const tabButton = e.target.closest('.jurisprudentie-tab-button');
+        if (!tabButton) return;
+        
+        const resultId = tabButton.dataset.resultId;
+        const tabId = tabButton.dataset.tabId;
+        
+        renderDetailTabs(resultId, tabId);
+    }
+
+
+    // --- Event Listeners Koppelen ---
+    searchButton.addEventListener('click', handleJurisprudentieSearch);
+    resultsList.addEventListener('click', handleResultClick);
+    detailTabsContainer.addEventListener('click', handleTabClick);
+
+    </script>
+</body>
+</html>
