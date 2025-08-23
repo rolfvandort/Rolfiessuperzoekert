@@ -1,7 +1,6 @@
 const axios = require('axios');
 const xml2js = require('xml2js');
 
-// Helper functie om de XML te parsen
 const parseXml = (xml) => {
     return new Promise((resolve, reject) => {
         xml2js.parseString(xml, (err, result) => {
@@ -11,18 +10,31 @@ const parseXml = (xml) => {
     });
 };
 
-// De hoofd-handler, nu met de juiste startknop: 'exports.handler'
 exports.handler = async (event, context) => {
-    // Netlify stuurt data bij een POST-request in event.body
-    // Dit moet worden geparsed van een string naar een object
-    const body = JSON.parse(event.body);
-    const { query } = body;
+    // VEILIGHEIDSCONTROLE 1: Zorg ervoor dat de motor niet crasht bij een test-ping (GET request)
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405, // Method Not Allowed
+            body: JSON.stringify({ message: 'Alleen POST requests zijn toegestaan.' })
+        };
+    }
+    
+    // VEILIGHEIDSCONTROLE 2: Controleer of er wel een 'brief' (body) is voordat we hem proberen te lezen
+    if (!event.body) {
+        return {
+            statusCode: 400, // Bad Request
+            body: JSON.stringify({ message: 'Zoekterm ontbreekt in het verzoek.' })
+        };
+    }
 
     try {
+        const body = JSON.parse(event.body);
+        const { query } = body;
+
         if (!query) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ message: 'Zoekterm ontbreekt.' })
+                body: JSON.stringify({ message: 'Zoekterm is leeg.' })
             };
         }
 
@@ -54,7 +66,6 @@ exports.handler = async (event, context) => {
             return { id, title, summary, updated, link };
         });
 
-        // Voor Netlify moeten we het antwoord in een specifiek format teruggeven
         return {
             statusCode: 200,
             body: JSON.stringify(cleanResults)
@@ -64,7 +75,7 @@ exports.handler = async (event, context) => {
         console.error('Fout in serverless functie:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: 'Er is een interne fout opgetreden.', error: error.message })
+            body: JSON.stringify({ message: 'Er is een interne fout opgetreden bij het verwerken van de zoekopdracht.', error: error.message })
         };
     }
 };
