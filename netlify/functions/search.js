@@ -38,8 +38,8 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // VERBETERDE API-AANROEP: Sorteer op nieuwste datum (`date:desc`) en verhoog de limiet naar 50
-        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?return=DOC&q=${encodeURIComponent(query)}&max=50&sort=Relevance`;
+        // CORRECTE API-AANROEP: Gebruik de `sort=Relevance` en `return=DOC` parameters zoals de API nu vereist.
+        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?return=DOC&q=${encodeURIComponent(query)}&max=50&sort=Relevance`; // <-- DEFINITIEVE CORRECTIE
         
         const apiResponse = await axios.get(apiUrl);
         const parsedData = await parseXml(apiResponse.data);
