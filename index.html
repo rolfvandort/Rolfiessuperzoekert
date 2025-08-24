@@ -268,7 +268,7 @@
                     <div class="p-4 border-b flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-primary">Resultaten (<span id="jurisprudentie-result-count">0</span>)</h2>
                         <div class="text-sm text-gray-400">
-                            Sorteer op: <span class="font-semibold text-gray-600">Nieuwste datum</span>
+                            Standaard sortering
                         </div>
                     </div>
                     <div class="flex-grow relative">
@@ -1194,7 +1194,7 @@
         setTimeout(() => el.classList.add('hidden'), 3000);
     }
     
-    // --- DERDENGELD MODULE (onveranderd) ---
+    // --- DERDENGELD MODULE ---
     function initializeDerdengeldApp() {
         const container = document.getElementById('derdengeld-app-container');
         container.innerHTML = `
@@ -2120,6 +2120,28 @@
         });
     }
 
+    function getSmartFilterValues(name, data) {
+        const selectedValues = new Set();
+        const form = document.getElementById('jurisprudentie-form');
+
+        data.forEach(group => {
+            const parentCheckbox = form.querySelector(`input[name="${name}"][value="${group.value}"]`);
+            if (parentCheckbox && parentCheckbox.checked) {
+                // Als de hoofdgroep is aangevinkt, voeg alleen die toe en sla kinderen over.
+                selectedValues.add(group.value);
+            } else if (group.children) {
+                // Als de hoofdgroep niet is aangevinkt, controleer de kinderen.
+                group.children.forEach(child => {
+                    const childCheckbox = form.querySelector(`input[name="${name}"][value="${child.value}"]`);
+                    if (childCheckbox && childCheckbox.checked) {
+                        selectedValues.add(child.value);
+                    }
+                });
+            }
+        });
+        return Array.from(selectedValues);
+    }
+
     function initializeJurisprudentieApp() {
         // Voorkom dat de filters en listeners opnieuw worden toegevoegd
         if (document.getElementById('jurisprudentie-form').dataset.initialized) return;
@@ -2180,16 +2202,13 @@
         document.getElementById('jurisprudentie-detail-pane-content').classList.add('hidden');
         updatePaginationUI();
         
-        const getCheckedValues = (name) => {
-            return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
-        };
-        
+        // *** GEBRUIK DE NIEUWE SLIMME FILTER LOGICA ***
         const requestBody = {
             query: searchTerm,
             dateStart: document.getElementById('filter-date-start').value,
             dateEnd: document.getElementById('filter-date-end').value,
-            instances: getCheckedValues('filter-instance'),
-            lawAreas: getCheckedValues('filter-law-area'),
+            instances: getSmartFilterValues('filter-instance', INSTANCES_DATA),
+            lawAreas: getSmartFilterValues('filter-law-area', LAW_AREAS_DATA),
             page: currentPage
         };
 
@@ -2201,7 +2220,9 @@
             });
 
             if (!response.ok) {
-                throw new Error(`Serverfout: ${response.status} ${await response.text()}`);
+                const errorData = await response.json();
+                console.error("Server error details:", errorData.error);
+                throw new Error(`Serverfout: ${response.status}. Details: ${errorData.error || 'Onbekend'}`);
             }
 
             const data = await response.json();
