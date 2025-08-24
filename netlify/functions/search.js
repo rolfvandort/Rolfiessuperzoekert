@@ -36,9 +36,9 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?return=DOC&q=${encodeURIComponent(query)}&max=50&sort=Relevance`;
+        // LAATSTE CORRECTIE: De 'sort'-parameter is verwijderd om de basis-aanroep te laten slagen.
+        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?return=DOC&q=${encodeURIComponent(query)}&max=50`;
         
-        // LAATSTE CORRECTIE: Voeg de vereiste 'Accept'-header toe aan het verzoek.
         const apiResponse = await axios.get(apiUrl, {
             headers: {
                 'Accept': 'application/atom+xml'
@@ -77,7 +77,6 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        // Log de volledige fout voor betere debugging in Netlify
         console.error('Fout in serverless functie:', error.response ? error.response.data : error.message);
         return {
             statusCode: 500,
