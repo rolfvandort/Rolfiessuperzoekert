@@ -10,18 +10,18 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <script type="module">
-        // Firebase SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, serverTimestamp, arrayUnion, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getDatabase, ref, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        // Firebase SDKs worden hier één keer correct geïmporteerd.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, serverTimestamp, arrayUnion, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getDatabase, ref, onValue, set, onDisconnect, serverTimestamp as rtdbServerTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         // Expose Firebase modules to the window object for easy access
         window.firebase = {
             initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
             getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, serverTimestamp, arrayUnion, where, writeBatch,
-            getDatabase, ref, onValue, set, onDisconnect,
+            getDatabase, ref, onValue, set, onDisconnect, rtdbServerTimestamp,
             getStorage, storageRef, uploadBytes, getDownloadURL
         };
     </script>
@@ -270,21 +270,14 @@
     <script type="module">
     // --- FIREBASE & GLOBALE CONFIGURATIE ---
 
-    // 1. Importeer ALLE benodigde Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, serverTimestamp, arrayUnion, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getDatabase, ref, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-
-    // Exposeer modules voor eventuele latere uitbreidingen
-    window.firebase = {
+    // 1. Haal de Firebase modules op die in de <head> zijn geëxporteerd.
+    const { 
         initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
         getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, serverTimestamp, arrayUnion, where, writeBatch,
-        getDatabase, ref, onValue, set, onDisconnect,
-        getStorage, storageRef, uploadBytes, getDownloadURL
-    };
-
+        getDatabase, ref, onValue, set, onDisconnect, rtdbServerTimestamp,
+        getStorage, storageRef, uploadBytes, getDownloadURL 
+    } = window.firebase;
+    
     // 2. Jouw unieke project sleutels (deze zijn correct!)
     const firebaseConfig = {
       apiKey: "AIzaSyDsWX2rv9RlFHUpZe4TVPZxPoi7CchQd0A",
@@ -296,79 +289,76 @@
       measurementId: "G-5ZF5L22ZRZ"
     };
 
-    // 3. Initialiseer alle Firebase services die we gebruiken
+    // 3. Initialiseer Firebase en alle benodigde services
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const rtdb = getDatabase(app);
     const storage = getStorage(app);
-
-    const COLLEAGUES = ['Lesley', 'Lilian', 'Myriam', 'Aaijvie', 'Jamie-Lee', 'Ine van Dort'];
-    let currentUserDisplayName = COLLEAGUES[5];
+    
+    // --- GLOBALE STAAT & CONSTANTEN ---
+    const COLLEAGUES = ['Ine van Dort', 'Rolf van Dort', 'Maaike', 'Esther', 'Simone', 'Sandra'];
+    const QUICK_LINKS = [
+        { name: 'ANWB Routeplanner', url: 'https://www.anwb.nl/verkeer/routeplanner' },
+        { name: 'NIS', url: 'https://nis.letselschaderaad.nl/' },
+        { name: 'Rechtspraak.nl', url: 'https://www.rechtspraak.nl/' },
+    ];
+    let currentUserDisplayName = COLLEAGUES[0];
     let currentUserId = null;
-
-    // App staat (wordt nu gevuld door Firestore)
+    let currentOpenMessageId = null;
+    let currentSchadestaatId = null;
+    
     let allMessages = [];
     let allDeadlines = [];
     let standardDocuments = [];
     let allSchadestaten = [];
-    
-    // Deze module blijft vooralsnog lokaal, zoals in het origineel
-    let derdengeld_localDatabase = { forms: [], takeoverRequests: [], reopenRequests: [], activityLog: [] };
-
-    // Unsubscribe functies voor listeners
     let unsubscribers = [];
-    
-    let currentOpenMessageId = null;
-    let currentSchadestaatId = null;
-    
-    const QUICK_LINKS = [
-        { name: 'Rechtspraak.nl', url: 'https://www.rechtspraak.nl/' },
-        { name: 'Verzekeraarsportaal (voorbeeld)', url: '#' },
-        { name: 'Medisch Advies (voorbeeld)', url: '#' }
-    ];
 
-    // --- AANWEZIGHEID & NOTIFICATIE FUNCTIES ---
+    // --- AANWEZIGHEIDSSYSTEEM (REAL-TIME) ---
     function setupPresenceSystem() {
-        if (!currentUserDisplayName) return;
+        if (!currentUserId || !currentUserDisplayName) return;
 
-        const userStatusDatabaseRef = ref(rtdb, '/status/' + currentUserDisplayName);
+        const userStatusDatabaseRef = ref(rtdb, `/status/${currentUserDisplayName}`);
+        const infoConnectedRef = ref(rtdb, '.info/connected');
 
-        const isOfflineForDatabase = { state: 'offline', last_changed: Date.now() };
-        const isOnlineForDatabase = { state: 'online', last_changed: Date.now() };
-
-        const presenceRef = ref(rtdb, '.info/connected');
-        onValue(presenceRef, (snapshot) => {
+        onValue(infoConnectedRef, (snapshot) => {
             if (snapshot.val() === false) {
-                return;
+                return; // Gebruiker is niet verbonden
             }
-            onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase).then(() => {
-                set(userStatusDatabaseRef, isOnlineForDatabase);
+            
+            onDisconnect(userStatusDatabaseRef).set({
+                state: 'offline',
+                last_changed: rtdbServerTimestamp()
+            }).then(() => {
+                set(userStatusDatabaseRef, {
+                    state: 'online',
+                    last_changed: rtdbServerTimestamp()
+                });
             });
         });
 
-        const statusRef = ref(rtdb, '/status');
+        const statusRef = ref(rtdb, 'status/');
         onValue(statusRef, (snapshot) => {
             const statuses = snapshot.val() || {};
-            renderPresenceWidget(statuses);
+            renderPresence(statuses);
         });
     }
 
-    function renderPresenceWidget(statuses = {}) {
+    function renderPresence(statuses) {
         const container = document.getElementById('presence-container');
         if (!container) return;
-        
         const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
-        
+
         container.innerHTML = COLLEAGUES.map(colleague => {
             const userStatus = statuses[colleague];
-            const isPresent = userStatus && userStatus.state === 'online' && userStatus.last_changed > fiveMinutesAgo;
+            const isPresent = userStatus && userStatus.state === 'online';
             const statusClass = isPresent ? 'bg-green-500' : 'bg-gray-400';
             const textClass = isPresent ? 'text-gray-800' : 'text-gray-500';
             return `<div class="flex items-center gap-2"><span class="h-3 w-3 rounded-full ${statusClass}"></span><span class="${textClass}">${colleague}</span></div>`;
         }).join('');
     }
 
+    // --- UTILITY FUNCTIES ---
     function sanitizeInput(text) {
         if (typeof text !== 'string') return '';
         const temp = document.createElement('div');
@@ -413,7 +403,7 @@
     function initializeApplication() {
         setupUserSelector();
         initFirestoreListeners();
-        setupPresenceSystem();
+        setupPresenceSystem(); // Eerste aanroep
         initializeDerdengeldApp();
         initializeSchadestaatApp();
         setupEventListeners();
@@ -431,7 +421,7 @@
             if (document.getElementById('prikbord-page').style.display !== 'none') renderPrikbord();
             if (document.getElementById('deadlines-page').style.display !== 'none') renderDeadlinesPage();
             if (document.getElementById('docs-page').style.display !== 'none') renderDocsPage();
-            setupPresenceSystem();
+            setupPresenceSystem(); // Opnieuw aanroepen na gebruikerwissel
         });
     }
 
@@ -820,7 +810,7 @@
             const newComment = {
                 content,
                 author: currentUserDisplayName,
-                createdAt: new Date()
+                createdAt: new Date() // Wordt server-side een timestamp
             };
             try {
                 const msgRef = doc(db, "messages", messageId);
@@ -1234,6 +1224,14 @@
             </div>
         `;
     
+        // Lokale staat voor de Derdengeld-module
+        const derdengeld_localDatabase = {
+            forms: [],
+            takeoverRequests: [],
+            reopenRequests: [],
+            activityLog: []
+        };
+        
         let derdengeld_currentUserDisplayName = currentUserDisplayName;
         let derdengeld_takenBuffer = [];
         let derdengeld_activeTask = null;
@@ -2006,16 +2004,21 @@
         resultCount.textContent = '...';
         document.getElementById('jurisprudentie-detail-pane-placeholder').classList.remove('hidden');
         document.getElementById('jurisprudentie-detail-pane-content').classList.add('hidden');
+        
+        const requestBody = { query: searchTerm };
+        console.log('Verzoek naar server:', JSON.stringify(requestBody));
 
         try {
             const response = await fetch('/.netlify/functions/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: searchTerm })
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
-                throw new Error(`Serverfout: ${response.statusText}`);
+                const errorText = await response.text();
+                console.error(`Serverfout: ${response.status} ${response.statusText}`, errorText);
+                throw new Error(`Serverfout: ${response.status}. Details: ${errorText}`);
             }
 
             const results = await response.json();
@@ -2029,8 +2032,8 @@
             }
         } catch (error) {
             console.error('Fout bij het zoeken:', error);
-            resultsList.innerHTML = `<div class="text-center p-10 text-red-500">Er is een fout opgetreden.</div>`;
-            showNotification('Zoekopdracht mislukt.', 'error');
+            resultsList.innerHTML = `<div class="text-center p-10 text-red-500">Er is een fout opgetreden. Bekijk de console voor details.</div>`;
+            showNotification(`Zoekopdracht mislukt: ${error.message}`, 'error');
         }
     }
 
@@ -2113,7 +2116,7 @@
                 break;
             case 'link':
                 content = `<p>Klik op de link om de originele uitspraak direct op Rechtspraak.nl te bekijken:</p>
-                           <a href="${resultData.link}" target="_blank" rel="noopener noreferrer" class="text-primary font-semibold hover:underline">${resultData.link}</a>`;
+                            <a href="${resultData.link}" target="_blank" rel="noopener noreferrer" class="text-primary font-semibold hover:underline">${resultData.link}</a>`;
                 break;
         }
         tabContentContainer.innerHTML = content;
