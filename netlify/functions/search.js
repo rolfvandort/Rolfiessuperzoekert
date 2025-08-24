@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
         }
 
         // VERBETERDE API-AANROEP: Sorteer op nieuwste datum (`date:desc`) en verhoog de limiet naar 50
-        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?q=${encodeURIComponent(query)}&max=50&sort=date:desc`; // <-- VERBETERING HIER
+        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?return=DOC&q=${encodeURIComponent(query)}&max=50&sort=Relevance`;
         
         const apiResponse = await axios.get(apiUrl);
         const parsedData = await parseXml(apiResponse.data);
