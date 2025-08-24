@@ -11,18 +11,16 @@ const parseXml = (xml) => {
 };
 
 exports.handler = async (event, context) => {
-    // VEILIGHEIDSCONTROLE 1: Zorg ervoor dat de motor niet crasht bij een test-ping (GET request)
     if (event.httpMethod !== 'POST') {
         return {
-            statusCode: 405, // Method Not Allowed
+            statusCode: 405,
             body: JSON.stringify({ message: 'Alleen POST requests zijn toegestaan.' })
         };
     }
     
-    // VEILIGHEIDSCONTROLE 2: Controleer of er wel een 'brief' (body) is voordat we hem proberen te lezen
     if (!event.body) {
         return {
-            statusCode: 400, // Bad Request
+            statusCode: 400,
             body: JSON.stringify({ message: 'Zoekterm ontbreekt in het verzoek.' })
         };
     }
@@ -38,10 +36,15 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // CORRECTE API-AANROEP: Gebruik de `sort=Relevance` en `return=DOC` parameters zoals de API nu vereist.
-        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?return=DOC&q=${encodeURIComponent(query)}&max=50&sort=Relevance`; // <-- DEFINITIEVE CORRECTIE
+        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?return=DOC&q=${encodeURIComponent(query)}&max=50&sort=Relevance`;
         
-        const apiResponse = await axios.get(apiUrl);
+        // LAATSTE CORRECTIE: Voeg de vereiste 'Accept'-header toe aan het verzoek.
+        const apiResponse = await axios.get(apiUrl, {
+            headers: {
+                'Accept': 'application/atom+xml'
+            }
+        });
+        
         const parsedData = await parseXml(apiResponse.data);
         
         const entries = parsedData?.feed?.entry;
@@ -74,7 +77,8 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Fout in serverless functie:', error);
+        // Log de volledige fout voor betere debugging in Netlify
+        console.error('Fout in serverless functie:', error.response ? error.response.data : error.message);
         return {
             statusCode: 500,
             body: JSON.stringify({ message: 'Er is een interne fout opgetreden bij het verwerken van de zoekopdracht.', error: error.message })
