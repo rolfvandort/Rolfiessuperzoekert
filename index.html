@@ -2095,7 +2095,7 @@
 
         try {
             // 2. Roep de back-end aan
-            const response = await fetch('/api/search', {
+            const response = await fetch('/.netlify/functions/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: searchTerm })
