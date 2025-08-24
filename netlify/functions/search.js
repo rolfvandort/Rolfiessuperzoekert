@@ -43,7 +43,7 @@ exports.handler = async (event, context) => {
         const params = new URLSearchParams();
         params.append('q', query);
         params.append('return', 'DOC');
-        params.append('sort', 'publicatiedatum'); // *** DEFINITIEVE CORRECTIE HIER TOEGEPAST ***
+        // *** DE 'SORT'-PARAMETER IS VOLLEDIG VERWIJDERD ***
         params.append('max', 20);      // Resultaten per pagina (aanpasbaar)
         params.append('page', page);
 
