@@ -1,6 +1,5 @@
-const axios = require("axios"); 
-const xml2js = require("xml2js"); 
-
+const axios = require("axios");
+const xml2js = require("xml2js");
 
 const parseXml = (xml) => {
     return new Promise((resolve, reject) => {
@@ -39,8 +38,9 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // Gebruik de veiligere HTTPS-endpoint
-        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?q=${encodeURIComponent(query)}&max=20`;
+        // VERBETERDE API-AANROEP: Sorteer op nieuwste datum (`date:desc`) en verhoog de limiet naar 50
+        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?q=${encodeURIComponent(query)}&max=50&sort=date:desc`; // <-- VERBETERING HIER
+        
         const apiResponse = await axios.get(apiUrl);
         const parsedData = await parseXml(apiResponse.data);
         
