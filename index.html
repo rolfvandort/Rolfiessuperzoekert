@@ -269,28 +269,34 @@
 
     <script type="module">
     // --- FIREBASE & GLOBALE CONFIGURATIE ---
-    const {
+
+    // 1. Importeer ALLE benodigde Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, serverTimestamp, arrayUnion, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getDatabase, ref, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+    // Exposeer modules voor eventuele latere uitbreidingen
+    window.firebase = {
         initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
         getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, serverTimestamp, arrayUnion, where, writeBatch,
         getDatabase, ref, onValue, set, onDisconnect,
         getStorage, storageRef, uploadBytes, getDownloadURL
-    } = window.firebase;
-
-    // =================================================================================
-    // BELANGRIJK: VUL HIER JE EIGEN FIREBASE CONFIGURATIE IN!
-    // Je vindt deze in de Firebase Console > Project Settings > General.
-    // =================================================================================
-    const firebaseConfig = {
-        apiKey: "AIzaSy...",
-        authDomain: "jouw-project-id.firebaseapp.com",
-        databaseURL: "https://jouw-project-id.firebaseio.com",
-        projectId: "jouw-project-id",
-        storageBucket: "jouw-project-id.appspot.com",
-        messagingSenderId: "...",
-        appId: "..."
     };
 
-    // Initialiseer Firebase
+    // 2. Jouw unieke project sleutels (deze zijn correct!)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDaVdNZv-r081FMhD-pZ4TzPuI7CHJQHnA",
+      authDomain: "vdl-hub.firebaseapp.com",
+      projectId: "vdl-hub",
+      storageBucket: "vdl-hub.appspot.com",
+      messagingSenderId: "108281286955",
+      appId: "1:108281286955:web:ad681eed27a08bb64dffb8",
+      measurementId: "G-6ZFSLL2ZKZ"
+    };
+
+    // 3. Initialiseer alle Firebase services die we gebruiken
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -299,7 +305,7 @@
 
     const COLLEAGUES = ['Lesley', 'Lilian', 'Myriam', 'Aaijvie', 'Jamie-Lee', 'Ine van Dort'];
     let currentUserDisplayName = COLLEAGUES[5];
-    let currentUserId = null; // Wordt ingesteld na anonieme login
+    let currentUserId = null;
 
     // App staat (wordt nu gevuld door Firestore)
     let allMessages = [];
@@ -408,7 +414,7 @@
         setupUserSelector();
         initFirestoreListeners();
         setupPresenceSystem();
-        initializeDerdengeldApp(); // Deze gebruikt nog lokale data
+        initializeDerdengeldApp();
         initializeSchadestaatApp();
         setupEventListeners();
         showPage('hub-page');
@@ -465,7 +471,7 @@
         });
         unsubscribers.push(unsubSchadestaten);
     }
-    
+
     // --- NAVIGATIE ---
     const allPages = ['hub-page', 'prikbord-page', 'derdengeld-app-container', 'deadlines-page', 'docs-page', 'schadestaat-page', 'jurisprudentie-page'];
 
