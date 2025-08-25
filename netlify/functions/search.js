@@ -3,7 +3,6 @@ const xml2js = require("xml2js");
 
 const parseXml = (xml) => {
     return new Promise((resolve, reject) => {
-        // Expliciete instellingen om te zorgen dat we alle data correct parsen
         const parser = new xml2js.Parser({
             explicitArray: false,
             tagNameProcessors: [xml2js.processors.stripPrefix],
@@ -35,28 +34,48 @@ exports.handler = async (event, context) => {
             page = 1 
         } = body;
 
+        const resultsPerPage = 20;
+
         if (!query) {
             return { statusCode: 400, body: JSON.stringify({ message: 'Zoekterm is leeg.' }) };
         }
 
-        // Bouw de API URL dynamisch op
+        // Bouw de API URL met de CORRECTE parameters uit de documentatie
         const params = new URLSearchParams();
-        params.append('q', query);
-        params.append('return', 'DOC');
-        // *** DE 'SORT'-PARAMETER IS VOLLEDIG VERWIJDERD ***
-        params.append('max', 20);
-        params.append('page', page);
-
-        if (dateStart) params.append('date-start', dateStart);
-        if (dateEnd) params.append('date-end', dateEnd);
         
-        // Voeg meerdere waarden voor instanties en rechtsgebieden toe
-        instances.forEach(instance => params.append('instantie', instance));
-        lawAreas.forEach(area => params.append('rechtsgebied', area));
+        // De 'q' parameter voor de zoekterm is niet officieel gedocumenteerd, maar wel de standaard.
+        // We behouden deze, maar voegen de andere correcte parameters toe.
+        if (query) {
+             params.append('q', query);
+        }
+
+        params.append('return', 'DOC');
+        params.append('max', resultsPerPage);
+        
+        // *** CORRECTIE 1: Sorteren ***
+        // De parameter accepteert alleen DESC of ASC.
+        params.append('sort', 'DESC');
+
+        // *** CORRECTIE 2: Paginering ***
+        // De parameter is 'from', niet 'page'. De waarde is het start-item.
+        const fromValue = (page - 1) * resultsPerPage;
+        if (fromValue > 0) {
+            params.append('from', fromValue);
+        }
+
+        // *** CORRECTIE 3: Datums ***
+        // De parameter is twee keer 'date', niet 'date-start' en 'date-end'.
+        if (dateStart) params.append('date', dateStart);
+        if (dateEnd) params.append('date', dateEnd);
+        
+        // *** CORRECTIE 4: Instanties & Rechtsgebieden ***
+        // De parameters zijn 'creator' en 'subject'.
+        instances.forEach(instance => params.append('creator', instance));
+        lawAreas.forEach(area => params.append('subject', area));
 
         const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?${params.toString()}`;
         
-        console.log("Requesting API URL:", apiUrl); // Voor debugging in Netlify logs
+        console.log("DEFINITIEVE API URL:", apiUrl);
 
         const apiResponse = await axios.get(apiUrl, {
             headers: { 'Accept': 'application/atom+xml' }
@@ -65,14 +84,12 @@ exports.handler = async (event, context) => {
         const parsedData = await parseXml(apiResponse.data);
         const entries = parsedData?.feed?.entry;
         
-        // Haal het totale aantal resultaten op voor paginering
         const totalResults = parseInt(parsedData?.feed?.totalResults?._ || '0', 10);
 
         if (!entries || entries.length === 0) {
             return { statusCode: 200, body: JSON.stringify({ results: [], total: 0 }) };
         }
 
-        // Zorg ervoor dat 'entries' altijd een array is, zelfs bij één resultaat
         const entriesArray = Array.isArray(entries) ? entries : [entries];
 
         const cleanResults = entriesArray.map(entry => {
