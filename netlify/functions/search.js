@@ -43,8 +43,8 @@ exports.handler = async (event, context) => {
         const params = new URLSearchParams();
         params.append('q', query);
         params.append('return', 'DOC');
-        params.append('sort', 'publicatiedatum');
-        params.append('max', 5000000);      // Resultaten per pagina (aanpasbaar)
+        // *** DE 'SORT'-PARAMETER IS VOLLEDIG VERWIJDERD ***
+        params.append('max', 20);
         params.append('page', page);
 
         if (dateStart) params.append('date-start', dateStart);
@@ -104,4 +104,3 @@ exports.handler = async (event, context) => {
         };
     }
 };
-
