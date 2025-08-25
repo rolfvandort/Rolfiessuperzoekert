@@ -1,11 +1,12 @@
 /**
  * @file search.js
- * @description Handles all client-side logic for searching the Rechtspraak.nl Open Data API.
+ * @description Handles all client-side logic for the "Superzoeker" by calling our own backend function.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
     const searchForm = document.getElementById('jurisprudentie-form');
+    const searchButton = searchForm.querySelector('button[type="submit"]');
     const resultsContainer = document.getElementById('results-container');
     const loadingIndicator = document.getElementById('loading-indicator');
     const errorMessageDiv = document.getElementById('error-message');
@@ -15,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextPageBtn = document.getElementById('next-page');
     const paginationContainer = document.getElementById('jurisprudentie-pagination');
 
-    // Modal elements for optional full content view
     const contentModal = document.getElementById('content-modal');
     const modalTitle = document.getElementById('modal-title');
     const modalContent = document.getElementById('modal-content');
@@ -27,140 +27,112 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMax = 50;
 
     // --- Mappings & Constants ---
-    const API_BASE_SEARCH_URL = 'https://data.rechtspraak.nl/uitspraken/zoeken';
-    const API_BASE_CONTENT_URL = 'https://data.rechtspraak.nl/uitspraken/content';
+    const API_BACKEND_URL = '/api/search'; // Onze eigen Netlify serverless-functie!
     const subjectMap = {
         'Civiel recht': 'http://psi.rechtspraak.nl/rechtsgebied#civiel',
         'Strafrecht': 'http://psi.rechtspraak.nl/rechtsgebied#strafrecht',
-        'Bestuursrecht': 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht'
+        'Bestuursrecht': 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht', // Komma was hier missing
         'Internationaal publiekrecht': 'http://psi.rechtspraak.nl/rechtsgebied#Internationaal publiekrecht'
-        
     };
 
     /**
-     * Builds the API query URL from the form inputs.
+     * Builds the query URL for our own backend function.
      * @returns {string} The complete, URL-encoded API endpoint.
      */
     function buildQueryUrl() {
         const params = new URLSearchParams();
+        const formData = new FormData(searchForm);
 
-        // Read values from form fields
-        const docType = document.getElementById('doc-type').value;
-        const dateFrom = document.getElementById('date-from').value;
-        const dateTo = document.getElementById('date-to').value;
-        const modifiedFrom = document.getElementById('modified-from').value;
-        const modifiedTo = document.getElementById('modified-to').value;
-        const subject = document.getElementById('subject').value;
-        const creator = document.getElementById('creator').value.trim();
-        const maxResults = document.getElementById('max-results').value;
-        const sortOrder = document.getElementById('sort-order').value;
+        currentMax = parseInt(formData.get('max-results'), 10) || 50;
         
-        currentMax = parseInt(maxResults, 10) || 50;
-
-        // Append parameters if they have a value
-        if (docType) params.append('type', docType);
-        if (dateFrom) params.append('date', dateFrom);
-        if (dateTo) params.append('date', dateTo);
-
-        // Format datetime-local value to the required API format (YYYY-MM-DDTHH:MM:SS)
-        if (modifiedFrom) params.append('modified', modifiedFrom + ':00');
-        if (modifiedTo) params.append('modified', modifiedTo + ':00');
-
+        params.append('type', formData.get('doc-type'));
+        if (formData.get('date-from')) params.append('date', formData.get('date-from'));
+        if (formData.get('date-to')) params.append('date', formData.get('date-to'));
+        if (formData.get('modified-from')) params.append('modified', formData.get('modified-from') + ':00');
+        if (formData.get('modified-to')) params.append('modified', formData.get('modified-to') + ':00');
+        
+        const subject = formData.get('subject');
         if (subject && subjectMap[subject]) {
             params.append('subject', subjectMap[subject]);
         }
-        if (creator) params.append('creator', creator);
+        
+        if (formData.get('creator')) params.append('creator', formData.get('creator').trim());
 
         params.append('max', currentMax);
         params.append('from', currentPageOffset);
-        if(sortOrder === 'DESC') {
-            // According to the documentation, sort=date only supports DESC order. 
-            // ASC (oplopend) is the default and does not require a parameter.
+        
+        if (formData.get('sort-order') === 'DESC') {
             params.append('sort', 'date');
         }
 
-        // The API returns XML, so we can set the return type parameter
         params.append('return', 'atom');
 
-        return `${API_BASE_SEARCH_URL}?${params.toString()}`;
+        return `${API_BACKEND_URL}?${params.toString()}`;
     }
-    
+
     /**
-     * Performs the search by fetching data from the API.
+     * Performs the search by fetching data from our backend.
      * @param {boolean} isPagination - Indicates if this is a new search or a pagination action.
      */
     async function performSearch(isPagination = false) {
         if (!isPagination) {
-            currentPageOffset = 0; // Reset for new search
+            currentPageOffset = 0;
         }
 
+        // --- UI Feedback Start ---
         loadingIndicator.classList.remove('hidden');
-        resultsContainer.classList.add('hidden');
+        resultsContainer.innerHTML = '';
         errorMessageDiv.classList.add('hidden');
         paginationContainer.style.visibility = 'hidden';
+        searchButton.disabled = true;
+        searchButton.textContent = 'Bezig...';
 
         const url = buildQueryUrl();
-        console.log(`Fetching: ${url}`); // For debugging purposes
+        console.log(`Frontend roept backend aan: ${url}`);
 
         try {
-            // Using the browser's native fetch API
             const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`API Fout: ${response.status} ${response.statusText}. Controleer de zoekparameters.`);
-            }
-            const xmlString = await response.text();
-            
-            // Using the browser's native DOMParser
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+            const data = await response.json();
 
-            // Check for XML parsing errors, which indicates a malformed response
-            if (xmlDoc.getElementsByTagName("parsererror").length) {
-                throw new Error("Fout bij het parsen van de XML-respons van de server.");
+            if (!response.ok || !data.success) {
+                // Toon de specifieke foutmelding van de backend
+                throw new Error(data.error || 'Er is een onbekende fout opgetreden.');
             }
-
-            const entries = xmlDoc.querySelectorAll('entry');
-            const subtitleElement = xmlDoc.querySelector('subtitle');
-            const subtitleText = subtitleElement ? subtitleElement.textContent : "Aantal gevonden ECLI's: 0";
             
-            updatePagination(subtitleText);
-            displayResults(entries);
+            totalResults = data.total;
+            updatePagination();
+            displayResults(data.results);
 
         } catch (error) {
             handleError(error.message);
         } finally {
+            // --- UI Feedback Einde ---
             loadingIndicator.classList.add('hidden');
-            resultsContainer.classList.remove('hidden');
+            searchButton.disabled = false;
+            searchButton.textContent = 'Zoeken';
         }
     }
 
     /**
-     * Displays the search results in the results container.
-     * @param {NodeListOf<Element>} entries - A list of <entry> elements from the XML response.
+     * Displays the search results from the clean JSON object.
+     * @param {Array} results - An array of result objects from our backend.
      */
-    function displayResults(entries) {
-        resultsContainer.innerHTML = ''; // Clear previous results
-        
-        if (entries.length === 0) {
+    function displayResults(results) {
+        if (results.length === 0) {
             errorMessageDiv.textContent = 'Geen resultaten gevonden voor deze zoekopdracht.';
             errorMessageDiv.classList.remove('hidden');
-            resultsContainer.appendChild(errorMessageDiv);
             return;
         }
 
-        entries.forEach(entry => {
-            const ecli = entry.querySelector('id')?.textContent || 'Geen ECLI';
-            const title = entry.querySelector('title')?.textContent || 'Geen Titel';
-            const summary = entry.querySelector('summary')?.textContent || 'Geen samenvatting beschikbaar.';
-
+        results.forEach(item => {
             const article = document.createElement('article');
             article.className = 'p-4 border rounded-md hover:bg-subtle hover:shadow-md cursor-pointer border-l-4 border-gray-200 hover:border-accent';
-            article.dataset.ecli = ecli;
+            article.dataset.ecli = item.id;
 
             article.innerHTML = `
-                <h3 class="font-semibold text-primary text-md pointer-events-none">${title}</h3>
-                <p class="text-sm text-gray-700 mt-2 pointer-events-none">${summary}</p>
-                <p class="text-xs text-gray-500 mt-2 font-mono pointer-events-none">${ecli}</p>
+                <h3 class="font-semibold text-primary text-md pointer-events-none">${item.title}</h3>
+                <p class="text-sm text-gray-700 mt-2 pointer-events-none">${item.summary}</p>
+                <p class="text-xs text-gray-500 mt-2 font-mono pointer-events-none">${item.id}</p>
             `;
             resultsContainer.appendChild(article);
         });
@@ -174,20 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.innerHTML = '';
         errorMessageDiv.textContent = message;
         errorMessageDiv.classList.remove('hidden');
-        resultsContainer.appendChild(errorMessageDiv);
         resultsSummarySpan.textContent = '';
         paginationContainer.style.visibility = 'hidden';
     }
 
     /**
-     * Updates the pagination controls based on the total results.
-     * @param {string} subtitleText - The text from the <subtitle> tag containing result count.
+     * Updates the pagination controls.
      */
-    function updatePagination(subtitleText) {
-        // Extract the number from a string like "Aantal gevonden ECLI's: 1234"
-        const match = subtitleText.match(/\d+/);
-        totalResults = match ? parseInt(match[0], 10) : 0;
-        
+    function updatePagination() {
         resultsSummarySpan.textContent = `Totaal: ${totalResults}`;
 
         if (totalResults > currentMax) {
@@ -203,49 +169,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * Fetches and displays the full content of a specific ECLI in a modal window.
-     * @param {string} ecli - The ECLI identifier of the document.
-     */
     async function fetchFullContent(ecli) {
+        // Deze functie kan hetzelfde blijven, aangezien de content API wellicht andere CORS-regels heeft
+        // of we kunnen hiervoor ook een backend proxy maken als het nodig is. Voor nu laten we het zo.
         modalTitle.textContent = ecli;
-        modalContent.innerHTML = '<p>Inhoud wordt geladen...</p>';
+        modalContent.innerHTML = '<div id="jurisprudentie-loader"></div>';
         contentModal.classList.remove('hidden');
-
-        const url = `${API_BASE_CONTENT_URL}?id=${encodeURIComponent(ecli)}`;
         
+        // We gebruiken een proxy voor de content-API voor de zekerheid en consistentie.
+        const url = `/api/search-content?id=${encodeURIComponent(ecli)}`; // Aanname: we maken een tweede proxy-functie
+        
+        // Omdat we geen tweede functie hebben afgesproken, gebruiken we voor nu de directe call.
+        // Als dit faalt met CORS, is de volgende stap een 'search-content' functie te maken.
+        const directUrl = `https://data.rechtspraak.nl/uitspraken/content?id=${encodeURIComponent(ecli)}`;
+
         try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`API Fout: ${response.statusText}`);
-            }
+            const response = await fetch(directUrl);
+            if (!response.ok) throw new Error(`API Fout: ${response.statusText}`);
+            
             const xmlString = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, "application/xml");
             
-            // The full content is inside the <uitspraak> or <conclusie> tag
             const contentElement = xmlDoc.querySelector('uitspraak, conclusie');
+            modalContent.innerHTML = contentElement ? contentElement.innerHTML : '<p>De volledige inhoud kon niet worden geladen.</p>';
 
-            if (contentElement) {
-                // The API response often has HTML encoded entities, so we let the browser parse it
-                modalContent.innerHTML = contentElement.innerHTML;
-            } else {
-                modalContent.innerHTML = '<p>De volledige inhoud kon niet worden geladen. Het is mogelijk dat de inhoud niet publiek beschikbaar is.</p>';
-            }
         } catch (error) {
-            modalContent.innerHTML = `<p class="text-red-500">Er is een fout opgetreden: ${error.message}</p>`;
+            modalContent.innerHTML = `<p class="text-red-500">Kon inhoud niet laden. Het is mogelijk dat de directe API-aanroep ook door CORS wordt geblokkeerd. Fout: ${error.message}</p>`;
         }
     }
 
     // --- Event Listeners Setup ---
-
-    // Listen for form submission to start a new search
     searchForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // This is crucial to prevent page reload
+        e.preventDefault();
         performSearch(false);
     });
 
-    // Listener for the 'previous page' button
     prevPageBtn.addEventListener('click', () => {
         if (currentPageOffset > 0) {
             currentPageOffset = Math.max(0, currentPageOffset - currentMax);
@@ -253,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Listener for the 'next page' button
     nextPageBtn.addEventListener('click', () => {
         const endItem = currentPageOffset + currentMax;
         if (endItem < totalResults) {
@@ -262,24 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event delegation for clicking on a result item to open the modal
     resultsContainer.addEventListener('click', (e) => {
         const resultArticle = e.target.closest('[data-ecli]');
         if (resultArticle) {
-            const ecli = resultArticle.dataset.ecli;
-            fetchFullContent(ecli);
+            fetchFullContent(resultArticle.dataset.ecli);
         }
     });
 
-    // Listener for closing the modal via the 'x' button
-    modalCloseBtn.addEventListener('click', () => {
-        contentModal.classList.add('hidden');
-    });
-
-    // Listener for closing the modal by clicking on the backdrop
+    modalCloseBtn.addEventListener('click', () => contentModal.classList.add('hidden'));
     contentModal.addEventListener('click', (e) => {
-        if (e.target === contentModal) {
-            contentModal.classList.add('hidden');
-        }
+        if (e.target === contentModal) contentModal.classList.add('hidden');
     });
 });
