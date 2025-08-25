@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'Civiel recht': 'http://psi.rechtspraak.nl/rechtsgebied#civiel',
         'Strafrecht': 'http://psi.rechtspraak.nl/rechtsgebied#strafrecht',
         'Bestuursrecht': 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht'
+        'Internationaal publiekrecht': 'http://psi.rechtspraak.nl/rechtsgebied#Internationaal publiekrecht'
+        
     };
 
     /**
