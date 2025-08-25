@@ -59,7 +59,7 @@
         .validation-panel { background: linear-gradient(135deg, #FED7D7 0%, #FEE2E2 100%); }
         .validation-item { background: rgba(255,255,255,0.7); }
 
-        /* Jurisprudentie Specifieke Stijlen */
+        /* --- START AANPASSINGEN JURISPRUDENTIE --- */
         .result-item-selected {
             background-color: #EBF8FF !important;
             border-color: #19AACD !important;
@@ -80,16 +80,17 @@
         details[open] > summary::before {
             transform: rotate(90deg);
         }
-        .filter-checkbox-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
+        
+        /* Visuele verbetering voor de filter checkboxes */
+        .filter-checkbox-container {
+            max-height: 200px; /* Bepaal een maximale hoogte */
+            overflow-y: auto; /* Voeg een scrollbar toe als de inhoud te lang is */
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
         }
-        @media (max-width: 1024px) { /* Aangepast voor betere weergave op tablets */
-            .filter-checkbox-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+
         #jurisprudentie-loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #19AACD;
@@ -105,6 +106,7 @@
         .search-block {
             transition: opacity 0.3s;
         }
+        /* --- EINDE AANPASSINGEN JURISPRUDENTIE --- */
     </style>
 </head>
 <body class="text-gray-800">
@@ -186,13 +188,13 @@
                                     <div id="quick-links-container" class="space-y-3"></div>
                                 </div>
                                 <div class="bg-white p-6 rounded-lg shadow-xl flex flex-col">
-                                 <h2 class="text-xl font-bold text-primary mb-4 border-b pb-2">Standaard Documenten</h2>
-                                 <p class="text-gray-600 mb-6 flex-grow">Vind en download de benodigde formulieren en formats.</p>
-                                 <div class="space-y-3 mb-6">
-                                     <div class="flex justify-between items-center"><span class="font-medium">Totaal Documenten:</span><span id="hub-docs-total" class="font-bold px-3 py-1 rounded-full">0</span></div>
-                                 </div>
-                                 <button id="btn-go-to-docs" class="mt-auto w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg shadow-sm">Open Documenten &rarr;</button>
-                             </div>
+                                   <h2 class="text-xl font-bold text-primary mb-4 border-b pb-2">Standaard Documenten</h2>
+                                   <p class="text-gray-600 mb-6 flex-grow">Vind en download de benodigde formulieren en formats.</p>
+                                   <div class="space-y-3 mb-6">
+                                       <div class="flex justify-between items-center"><span class="font-medium">Totaal Documenten:</span><span id="hub-docs-total" class="font-bold px-3 py-1 rounded-full">0</span></div>
+                                   </div>
+                                   <button id="btn-go-to-docs" class="mt-auto w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg shadow-sm">Open Documenten &rarr;</button>
+                               </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -252,16 +254,18 @@
                                     <div><label for="filter-date-end" class="text-sm font-medium">Datum voor:</label><input type="date" id="filter-date-end" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
                                 </div>
 
-                                <details id="filter-details-instances">
+                                <details id="filter-details-instances" open>
                                     <summary class="font-semibold text-gray-800 text-sm">Instanties</summary>
-                                    <div class="mt-2 pl-2 filter-checkbox-grid">
-                                        </div>
+                                    <div class="mt-2 pl-2 filter-checkbox-container">
+                                        <!-- Checkboxes worden hier dynamisch ingeladen -->
+                                    </div>
                                 </details>
 
-                                <details id="filter-details-law-areas">
+                                <details id="filter-details-law-areas" open>
                                     <summary class="font-semibold text-gray-800 text-sm">Rechtsgebieden</summary>
-                                    <div class="mt-2 pl-2 filter-checkbox-grid">
-                                        </div>
+                                    <div class="mt-2 pl-2 filter-checkbox-container">
+                                        <!-- Checkboxes worden hier dynamisch ingeladen -->
+                                    </div>
                                 </details>
                             </div>
                         </div>
@@ -1656,7 +1660,7 @@
                 }
             });
         }
-    
+        
         window.derdengeldApp = {
             setCurrentUser: (name) => {
                 derdengeld_currentUserDisplayName = name;
@@ -1674,7 +1678,7 @@
             },
             renderDashboard: derdengeld_renderDashboard
         };
-    
+        
         derdengeld_init();
     }
 
@@ -1693,7 +1697,7 @@
                         </div>
                         <button class="btn-back-to-hub text-sm font-medium text-gray-600 hover:text-primary">&larr; Terug naar Hub</button>
                    </header>
-                   <div class="flex flex-col lg:flex-row">
+                  <div class="flex flex-col lg:flex-row">
                         <main class="w-full lg:w-2/3 p-4 sm:p-6 lg:p-8">
                             <section id="schade-validation-dashboard" class="validation-panel p-4 rounded-lg shadow-md mb-6 hidden">
                                 <h3 class="text-lg font-semibold mb-3 text-red-800">⚠️ Validatie Waarschuwingen</h3>
@@ -1764,7 +1768,7 @@
                             </div>
                         </aside>
                    </div>
-                   <div id="schade-print-output" class="print-only p-8"></div>
+                  <div id="schade-print-output" class="print-only p-8"></div>
                 </div>
             `;
 
@@ -2029,13 +2033,13 @@
         { name: 'Raad van State', value: 'http://psi.rechtspraak.nl/resource/instantie/RVS' },
         { name: 'Centrale Raad van Beroep', value: 'http://psi.rechtspraak.nl/resource/instantie/CRVB' },
         { name: 'College van Beroep', value: 'http://psi.rechtspraak.nl/resource/instantie/CBB' },
-        { name: 'Gerechtshoven', value: 'GERECHTSHOOF', children: [ // Dummy value for parent
+        { name: 'Gerechtshoven', value: 'GERECHTSHOF', children: [
             { name: 'Amsterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/GHAMS' },
             { name: 'Den Haag', value: 'http://psi.rechtspraak.nl/resource/instantie/GHDHA' },
             { name: 'Arnhem-Leeuwarden', value: 'http://psi.rechtspraak.nl/resource/instantie/GHARL' },
             { name: '\'s-Hertogenbosch', value: 'http://psi.rechtspraak.nl/resource/instantie/GHSHE' }
         ]},
-        { name: 'Rechtbanken', value: 'RECHTBANK', children: [ // Dummy value for parent
+        { name: 'Rechtbanken', value: 'RECHTBANK', children: [
             { name: 'Amsterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/RBAMS' },
             { name: 'Den Haag', value: 'http://psi.rechtspraak.nl/resource/instantie/RBDHA' },
             { name: 'Gelderland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBGEL' },
@@ -2051,18 +2055,18 @@
     ];
 
     const LAW_AREAS_DATA = [
-        { name: 'Bestuursrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht', children: []},
-        { name: 'Civiel recht', value: 'http://psi.rechtspraak.nl/rechtsgebied#civiel', children: []},
-        { name: 'Internationaal', value: 'http://psi.rechtspraak.nl/rechtsgebied#internationaal', children: []},
-        { name: 'Strafrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#strafrecht', children: []}
+        { name: 'Bestuursrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht'},
+        { name: 'Civiel recht', value: 'http://psi.rechtspraak.nl/rechtsgebied#civiel'},
+        { name: 'Internationaal', value: 'http://psi.rechtspraak.nl/rechtsgebied#internationaal'},
+        { name: 'Strafrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#strafrecht'}
     ];
 
     function createCheckbox(item, name) {
         return `
-            <div class="text-sm">
-                <label class="flex items-center">
+            <div class="text-sm py-1">
+                <label class="flex items-center cursor-pointer">
                     <input type="checkbox" name="${name}" value="${item.value}" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
-                    <span class="ml-2">${item.name}</span>
+                    <span class="ml-2 text-gray-700">${item.name}</span>
                 </label>
             </div>
         `;
@@ -2071,12 +2075,12 @@
     function createFilterGroup(group, name) {
         const childrenHtml = group.children ? group.children.map(child => createCheckbox(child, name)).join('') : '';
         return `
-            <div>
-                <label class="font-semibold text-sm flex items-center">
+            <div class="space-y-1">
+                <label class="font-semibold text-sm flex items-center cursor-pointer py-1">
                     <input type="checkbox" data-group-parent="${group.value}" name="${name}" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
-                    <span class="ml-2">${group.name}</span>
+                    <span class="ml-2 text-gray-800">${group.name}</span>
                 </label>
-                <div class="pl-6 mt-1 space-y-1">
+                <div class="pl-5 mt-1 space-y-1 border-l-2 border-gray-200 ml-2">
                     ${childrenHtml}
                 </div>
             </div>
@@ -2084,8 +2088,8 @@
     }
 
     function populateFilters() {
-        const instancesContainer = document.querySelector('#filter-details-instances .filter-checkbox-grid');
-        const lawAreasContainer = document.querySelector('#filter-details-law-areas .filter-checkbox-grid');
+        const instancesContainer = document.querySelector('#filter-details-instances .filter-checkbox-container');
+        const lawAreasContainer = document.querySelector('#filter-details-law-areas .filter-checkbox-container');
 
         instancesContainer.innerHTML = INSTANCES_DATA.map(group => {
             return group.children && group.children.length > 0 ? createFilterGroup(group, 'filter-instance') : createCheckbox(group, 'filter-instance');
@@ -2098,41 +2102,26 @@
         document.querySelectorAll('input[data-group-parent]').forEach(parentCheckbox => {
             parentCheckbox.addEventListener('change', (e) => {
                 const groupContainer = e.target.closest('div');
-                const childCheckboxes = groupContainer.querySelectorAll(`input[name="${e.target.name}"]:not([data-group-parent])`);
-                childCheckboxes.forEach(child => {
-                    child.checked = e.target.checked;
-                });
+                // Zoek de container met de onderliggende checkboxes
+                const childrenContainer = groupContainer.nextElementSibling;
+                if (childrenContainer) {
+                    const childCheckboxes = childrenContainer.querySelectorAll(`input[name="${e.target.name}"]`);
+                    childCheckboxes.forEach(child => {
+                        child.checked = e.target.checked;
+                    });
+                }
             });
         });
     }
 
-    function getSmartFilterValues(name, data) {
-        const selectedValues = new Set();
-        const form = document.getElementById('jurisprudentie-form');
-
-        data.forEach(group => {
-            const parentCheckbox = form.querySelector(`input[name="${name}"][data-group-parent="${group.value}"]`);
-            if (parentCheckbox && parentCheckbox.checked) {
-                // Als de hoofdgroep is aangevinkt, alle kinderen toevoegen
-                group.children.forEach(child => selectedValues.add(child.value));
-            } else if (group.children && group.children.length > 0) {
-                // Als de hoofdgroep niet is aangevinkt, controleer de kinderen individueel
-                group.children.forEach(child => {
-                    const childCheckbox = form.querySelector(`input[name="${name}"][value="${child.value}"]`);
-                    if (childCheckbox && childCheckbox.checked) {
-                        selectedValues.add(child.value);
-                    }
-                });
-            } else {
-                // Voor items zonder kinderen (Hoge Raad, etc.)
-                const singleCheckbox = form.querySelector(`input[name="${name}"][value="${group.value}"]`);
-                if (singleCheckbox && singleCheckbox.checked) {
-                    selectedValues.add(group.value);
-                }
-            }
-        });
-        return Array.from(selectedValues);
+    // *** GECORRIGEERDE FUNCTIE ***
+    // Deze functie is eenvoudiger en leest direct alle aangevinkte checkboxes uit,
+    // behalve de 'parent' checkboxes die alleen voor de UI zijn.
+    function getSelectedFilterValues(name) {
+        const checkedInputs = document.querySelectorAll(`#jurisprudentie-form input[name="${name}"]:checked:not([data-group-parent])`);
+        return Array.from(checkedInputs).map(input => input.value);
     }
+
 
     function initializeJurisprudentieApp() {
         if (document.getElementById('jurisprudentie-form').dataset.initialized) return;
@@ -2179,9 +2168,12 @@
 
         const dateStart = document.getElementById('filter-date-start').value;
         const dateEnd = document.getElementById('filter-date-end').value;
-        const instances = getSmartFilterValues('filter-instance', INSTANCES_DATA);
-        const lawAreas = getSmartFilterValues('filter-law-area', LAW_AREAS_DATA);
+        
+        // Gebruik de nieuwe, gecorrigeerde functie
+        const instances = getSelectedFilterValues('filter-instance');
+        const lawAreas = getSelectedFilterValues('filter-law-area');
 
+        // De validatie blijft hetzelfde
         if (!dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
             showNotification('Selecteer tenminste één filter.', 'error');
             return;
