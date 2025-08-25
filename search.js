@@ -6,7 +6,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
     const searchForm = document.getElementById('jurisprudentie-form');
-    const searchButton = searchForm.querySelector('button[type="submit"]');
+    const searchButton = document.querySelector('button[form="jurisprudentie-form"]');
     const resultsContainer = document.getElementById('results-container');
     const loadingIndicator = document.getElementById('loading-indicator');
     const errorMessageDiv = document.getElementById('error-message');
