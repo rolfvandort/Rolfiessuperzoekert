@@ -241,80 +241,110 @@
 
                 <aside class="col-span-12 lg:col-span-3 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
                     <div class="p-4 border-b">
-                        <h2 class="text-lg font-semibold text-primary">Zoekopdracht</h2>
+                        <h2 class="text-lg font-semibold text-primary">Zoekparameters</h2>
                     </div>
-                    <div id="jurisprudentie-form" class="p-4 space-y-4 overflow-y-auto">
-                        
-                        <div id="metadata-search-block" class="search-block">
-                            <h3 class="font-semibold text-gray-800 mb-2">Zoeken op metadata</h3>
-                            <p class="text-xs text-gray-500 mb-4">Laat velden leeg om ze niet mee te nemen in het filter.</p>
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div><label for="filter-date-start" class="text-sm font-medium">Datum na:</label><input type="date" id="filter-date-start" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
-                                    <div><label for="filter-date-end" class="text-sm font-medium">Datum voor:</label><input type="date" id="filter-date-end" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
+                    <form id="jurisprudentie-form" class="p-4 space-y-4 overflow-y-auto flex-grow">
+                        <div>
+                            <label for="doc-type" class="block text-sm font-medium text-gray-700">Type document</label>
+                            <select id="doc-type" name="doc-type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option>Uitspraak</option>
+                                <option>Conclusie</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Uitspraakdatum (periode)</label>
+                            <div class="mt-1 grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="date-from" class="text-xs text-gray-500">Vanaf:</label>
+                                    <input type="date" id="date-from" name="date-from" class="w-full rounded-md border-gray-300 text-sm">
                                 </div>
-
-                                <details id="filter-details-instances" open>
-                                    <summary class="font-semibold text-gray-800 text-sm">Instanties</summary>
-                                    <div class="mt-2 filter-checkbox-container">
-                                        <!-- Checkboxes worden hier dynamisch ingeladen -->
-                                    </div>
-                                </details>
-
-                                <details id="filter-details-law-areas" open>
-                                    <summary class="font-semibold text-gray-800 text-sm">Rechtsgebieden</summary>
-                                    <div class="mt-2 filter-checkbox-container">
-                                        <!-- Checkboxes worden hier dynamisch ingeladen -->
-                                    </div>
-                                </details>
+                                <div>
+                                    <label for="date-to" class="text-xs text-gray-500">Tot:</label>
+                                    <input type="date" id="date-to" name="date-to" class="w-full rounded-md border-gray-300 text-sm">
+                                </div>
                             </div>
                         </div>
-                    </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Wijzigingsdatum (periode)</label>
+                            <div class="mt-1 grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="modified-from" class="text-xs text-gray-500">Vanaf:</label>
+                                    <input type="datetime-local" id="modified-from" name="modified-from" class="w-full rounded-md border-gray-300 text-sm">
+                                </div>
+                                <div>
+                                    <label for="modified-to" class="text-xs text-gray-500">Tot:</label>
+                                    <input type="datetime-local" id="modified-to" name="modified-to" class="w-full rounded-md border-gray-300 text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700">Rechtsgebied</label>
+                            <select id="subject" name="subject" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="">-- Alle --</option>
+                                <option>Civiel recht</option>
+                                <option>Strafrecht</option>
+                                <option>Bestuursrecht</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="creator" class="block text-sm font-medium text-gray-700">Instantie (afkorting)</label>
+                            <input type="text" id="creator" name="creator" class="mt-1 w-full rounded-md border-gray-300 text-sm" placeholder="bijv. HR, RBNNE">
+                        </div>
+
+                        <div>
+                            <label for="max-results" class="block text-sm font-medium text-gray-700">Maximaal aantal resultaten</label>
+                            <input type="number" id="max-results" name="max-results" value="50" max="1000" min="1" class="mt-1 w-full rounded-md border-gray-300 text-sm">
+                        </div>
+
+                        <div>
+                            <label for="sort-order" class="block text-sm font-medium text-gray-700">Sortering</label>
+                            <select id="sort-order" name="sort-order" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="ASC" selected>Oplopend</option>
+                                <option value="DESC">Aflopend</option>
+                            </select>
+                        </div>
+                    </form>
                     <div class="mt-auto p-4 border-t bg-gray-50">
-                        <button id="filter-search-button" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg shadow-sm">Filter Resultaten</button>
+                        <button type="submit" form="jurisprudentie-form" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg shadow-sm">Zoeken</button>
                     </div>
                 </aside>
 
-                <section class="col-span-12 lg:col-span-4 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+                <section class="col-span-12 lg:col-span-9 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
                     <div class="p-4 border-b flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-primary">Resultaten (<span id="jurisprudentie-result-count">0</span>)</h2>
-                        <div class="text-sm text-gray-400">
-                            Sorteer op: <span class="font-semibold text-gray-600">Nieuwste</span>
-                        </div>
+                        <h2 class="text-lg font-semibold text-primary">Resultaten</h2>
+                        <span id="results-summary" class="text-sm text-gray-500"></span>
                     </div>
                     <div class="flex-grow relative">
-                        <div id="jurisprudentie-results-list" class="absolute inset-0 overflow-y-auto p-2 space-y-2">
-                            <div class="flex items-center justify-center h-full text-center p-10 text-gray-500">
-                                Gebruik de filters om te zoeken.
+                        <div id="results-container" class="absolute inset-0 overflow-y-auto p-2 space-y-2">
+                             <div id="error-message" class="flex items-center justify-center h-full text-center p-10 text-gray-500">
+                                Gebruik het formulier om te zoeken.
                             </div>
                         </div>
-                        <div id="jurisprudentie-loader-container" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                            <div id="jurisprudentie-loader"></div>
+                        <div id="loading-indicator" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                            <div style="border: 4px solid #f3f3f3; border-top: 4px solid #19AACD; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
                         </div>
                     </div>
-                    <div id="jurisprudentie-pagination" class="hidden p-2 border-t flex justify-between items-center text-sm">
-                        <button id="pagination-prev" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">&larr; Vorige</button>
+                    <div id="jurisprudentie-pagination" class="p-2 border-t flex justify-between items-center text-sm">
+                        <button id="prev-page" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">&larr; Vorige</button>
                         <span id="pagination-info" class="text-gray-600"></span>
-                        <button id="pagination-next" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Volgende &rarr;</button>
+                        <button id="next-page" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Volgende &rarr;</button>
                     </div>
                 </section>
-
-                <article class="col-span-12 lg:col-span-5 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
-                    <div id="jurisprudentie-detail-pane-placeholder" class="flex flex-col items-center justify-center h-full text-center text-gray-500 p-8">
-                       <svg class="h-12 w-12 text-gray-300 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
-                        <h3 class="font-semibold text-lg text-gray-700">Selecteer een uitspraak</h3>
-                        <p>Klik op een resultaat in de lijst om hier de details te bekijken.</p>
-                    </div>
-                    <div id="jurisprudentie-detail-pane-content" class="hidden flex-col h-full">
-                        <div class="border-b border-gray-200">
-                            <nav id="jurisprudentie-detail-tabs" class="-mb-px flex space-x-6 px-4" aria-label="Tabs">
-                            </nav>
-                        </div>
-                        <div id="jurisprudentie-detail-tab-content" class="p-4 overflow-y-auto">
-                        </div>
-                    </div>
-                </article>
             </main>
+        </div>
+        <div id="content-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]">
+                <header class="p-4 border-b flex justify-between items-center">
+                    <h2 id="modal-title" class="text-xl font-semibold text-primary">Uitspraak Details</h2>
+                    <button id="modal-close-btn" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+                </header>
+                <main id="modal-content" class="p-6 flex-grow overflow-y-auto prose max-w-none">
+                    </main>
+            </div>
         </div>
     </div>
     
@@ -528,7 +558,7 @@
             'prikbord-page': () => renderPrikbord(),
             'deadlines-page': () => renderDeadlinesPage(),
             'docs-page': () => renderDocsPage(),
-            'jurisprudentie-page': () => initializeJurisprudentieApp(),
+            'jurisprudentie-page': () => { /* Logic is now in search.js */ },
             'schadestaat-page': () => {
                 if (window.schadestaatApp) {
                     window.schadestaatApp.loadState(context?.id || null);
@@ -2021,319 +2051,7 @@
         getEl('print-export').addEventListener('click', () => showNotification("Print functie is klaar voor gebruik.", "info"));
     }
 
-    // --- JURISPRUDENTIE SUPERZOEKER MODULE ---
-    let jurisprudentieResults = [];
-    let currentPage = 1;
-    let totalResults = 0;
-    const resultsPerPage = 20;
-    
-    // Data voor de geavanceerde filters met CORRECTE URI's
-    const INSTANCES_DATA = [
-        { name: 'Hoge Raad', value: 'http://psi.rechtspraak.nl/resource/instantie/HR' },
-        { name: 'Raad van State', value: 'http://psi.rechtspraak.nl/resource/instantie/RVS' },
-        { name: 'Centrale Raad van Beroep', value: 'http://psi.rechtspraak.nl/resource/instantie/CRVB' },
-        { name: 'College van Beroep', value: 'http://psi.rechtspraak.nl/resource/instantie/CBB' },
-        { name: 'Gerechtshoven', value: 'GERECHTSHOF', children: [
-            { name: 'Amsterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/GHAMS' },
-            { name: 'Den Haag', value: 'http://psi.rechtspraak.nl/resource/instantie/GHDHA' },
-            { name: 'Arnhem-Leeuwarden', value: 'http://psi.rechtspraak.nl/resource/instantie/GHARL' },
-            { name: '\'s-Hertogenbosch', value: 'http://psi.rechtspraak.nl/resource/instantie/GHSHE' }
-        ]},
-        { name: 'Rechtbanken', value: 'RECHTBANK', children: [
-            { name: 'Amsterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/RBAMS' },
-            { name: 'Den Haag', value: 'http://psi.rechtspraak.nl/resource/instantie/RBDHA' },
-            { name: 'Gelderland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBGEL' },
-            { name: 'Limburg', value: 'http://psi.rechtspraak.nl/resource/instantie/RBLIM' },
-            { name: 'Midden-Nederland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBMNE' },
-            { name: 'Noord-Holland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBNHO' },
-            { name: 'Noord-Nederland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBNNE' },
-            { name: 'Oost-Brabant', value: 'http://psi.rechtspraak.nl/resource/instantie/RBOBR' },
-            { name: 'Overijssel', value: 'http://psi.rechtspraak.nl/resource/instantie/RBOVE' },
-            { name: 'Rotterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/RBROT' },
-            { name: 'Zeeland-West-Brabant', value: 'http://psi.rechtspraak.nl/resource/instantie/RBZWB' }
-        ]}
-    ];
-
-    // *** CORRECTIE 1: De 'children' array is verwijderd waar deze niet nodig was. ***
-    const LAW_AREAS_DATA = [
-        { name: 'Bestuursrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht'},
-        { name: 'Civiel recht', value: 'http://psi.rechtspraak.nl/rechtsgebied#civiel'},
-        { name: 'Internationaal', value: 'http://psi.rechtspraak.nl/rechtsgebied#internationaal'},
-        { name: 'Strafrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#strafrecht'}
-    ];
-
-    function createCheckbox(item, name) {
-        return `
-            <div class="text-sm py-1">
-                <label class="flex items-center cursor-pointer">
-                    <input type="checkbox" name="${name}" value="${item.value}" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
-                    <span class="ml-2 text-gray-700">${item.name}</span>
-                </label>
-            </div>
-        `;
-    }
-
-    function createFilterGroup(group, name) {
-        const childrenHtml = group.children ? group.children.map(child => createCheckbox(child, name)).join('') : '';
-        return `
-            <div class="space-y-1">
-                <label class="font-semibold text-sm flex items-center cursor-pointer py-1">
-                    <input type="checkbox" data-group-parent="${group.value}" name="${name}" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
-                    <span class="ml-2 text-gray-800">${group.name}</span>
-                </label>
-                <div class="pl-5 mt-1 space-y-1 border-l-2 border-gray-200 ml-2">
-                    ${childrenHtml}
-                </div>
-            </div>
-        `;
-    }
-
-    function populateFilters() {
-        const instancesContainer = document.querySelector('#filter-details-instances .filter-checkbox-container');
-        const lawAreasContainer = document.querySelector('#filter-details-law-areas .filter-checkbox-container');
-
-        instancesContainer.innerHTML = INSTANCES_DATA.map(group => {
-            return group.children && group.children.length > 0 ? createFilterGroup(group, 'filter-instance') : createCheckbox(group, 'filter-instance');
-        }).join('');
-        
-        lawAreasContainer.innerHTML = LAW_AREAS_DATA.map(group => createCheckbox(group, 'filter-law-area')).join('');
-    }
-    
-    // *** CORRECTIE 2: De selector is robuuster gemaakt om de kind-elementen correct te vinden. ***
-    function setupFilterListeners() {
-        document.querySelectorAll('input[data-group-parent]').forEach(parentCheckbox => {
-            parentCheckbox.addEventListener('change', (e) => {
-                // Ga omhoog naar de 'label', dan naar de 'div' die de label en de kinder-div omvat,
-                // en zoek dan naar de kinder-div.
-                const groupContainer = e.target.closest('.space-y-1');
-                const childrenContainer = groupContainer.querySelector('.pl-5');
-                
-                if (childrenContainer) {
-                    const childCheckboxes = childrenContainer.querySelectorAll(`input[name="${e.target.name}"]`);
-                    childCheckboxes.forEach(child => {
-                        child.checked = e.target.checked;
-                    });
-                }
-            });
-        });
-    }
-
-    function getSelectedFilterValues(name) {
-        const checkedInputs = document.querySelectorAll(`#jurisprudentie-form input[name="${name}"]:checked:not([data-group-parent])`);
-        return Array.from(checkedInputs).map(input => input.value);
-    }
-
-
-    function initializeJurisprudentieApp() {
-        if (document.getElementById('jurisprudentie-form').dataset.initialized) return;
-
-        populateFilters();
-        
-        const filterSearchButton = document.getElementById('filter-search-button');
-        const resultsList = document.getElementById('jurisprudentie-results-list');
-        const tabsContainer = document.getElementById('jurisprudentie-detail-tabs');
-        const prevButton = document.getElementById('pagination-prev');
-        const nextButton = document.getElementById('pagination-next');
-        
-        filterSearchButton.addEventListener('click', () => {
-            currentPage = 1;
-            handleJurisprudentieSearch();
-        });
-
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                handleJurisprudentieSearch();
-            }
-        });
-        nextButton.addEventListener('click', () => {
-            const totalPages = Math.ceil(totalResults / resultsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                handleJurisprudentieSearch();
-            }
-        });
-        
-        setupFilterListeners();
-        resultsList.addEventListener('click', handleResultClick);
-        tabsContainer.addEventListener('click', handleTabClick);
-
-        document.getElementById('jurisprudentie-form').dataset.initialized = 'true';
-    }
-
-    async function handleJurisprudentieSearch() {
-        const resultsList = document.getElementById('jurisprudentie-results-list');
-        const resultCount = document.getElementById('jurisprudentie-result-count');
-        const loader = document.getElementById('jurisprudentie-loader-container');
-        const filterSearchButton = document.getElementById('filter-search-button');
-
-        // *** CORRECTIE 3: Zorg ervoor dat lege datumvelden als lege strings worden doorgegeven. ***
-        const dateStart = document.getElementById('filter-date-start').value || "";
-        const dateEnd = document.getElementById('filter-date-end').value || "";
-        
-        const instances = getSelectedFilterValues('filter-instance');
-        const lawAreas = getSelectedFilterValues('filter-law-area');
-        
-        let requestBody = { 
-            page: currentPage,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
-            instances: instances,
-            lawAreas: lawAreas
-        };
-
-        loader.classList.remove('hidden');
-        filterSearchButton.disabled = true;
-        
-        resultsList.innerHTML = '';
-        resultCount.textContent = '...';
-        document.getElementById('jurisprudentie-detail-pane-placeholder').classList.remove('hidden');
-        document.getElementById('jurisprudentie-detail-pane-content').classList.add('hidden');
-        updatePaginationUI();
-        
-        try {
-            const response = await fetch('/.netlify/functions/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Server error details:", errorData.error);
-                throw new Error(`Serverfout: ${response.status}.`);
-            }
-
-            const data = await response.json();
-            jurisprudentieResults = data.results || [];
-            totalResults = data.total || 0;
-
-            resultCount.textContent = totalResults;
-            if (jurisprudentieResults.length > 0) {
-                resultsList.innerHTML = jurisprudentieResults.map(createResultCard).join('');
-            } else {
-                resultsList.innerHTML = `<div class="text-center p-10 text-gray-500">Geen resultaten gevonden voor deze zoekopdracht.</div>`;
-            }
-        } catch (error) {
-            console.error('Fout bij het zoeken:', error);
-            resultsList.innerHTML = `<div class="text-center p-10 text-red-500">Er is een fout opgetreden. Probeer het opnieuw.</div>`;
-            showNotification(`Zoekopdracht mislukt: ${error.message}`, 'error');
-            totalResults = 0;
-        } finally {
-            loader.classList.add('hidden');
-            filterSearchButton.disabled = false;
-            updatePaginationUI();
-        }
-    }
-    
-    function updatePaginationUI() {
-        const paginationContainer = document.getElementById('jurisprudentie-pagination');
-        const prevButton = document.getElementById('pagination-prev');
-        const nextButton = document.getElementById('pagination-next');
-        const pageInfo = document.getElementById('pagination-info');
-
-        if (totalResults <= resultsPerPage) {
-            paginationContainer.classList.add('hidden');
-            return;
-        }
-        
-        paginationContainer.classList.remove('hidden');
-
-        const totalPages = Math.ceil(totalResults / resultsPerPage);
-        const startItem = (currentPage - 1) * resultsPerPage + 1;
-        const endItem = Math.min(currentPage * resultsPerPage, totalResults);
-        
-        pageInfo.textContent = `${startItem}-${endItem} van ${totalResults}`;
-        
-        prevButton.disabled = currentPage === 1;
-        nextButton.disabled = currentPage >= totalPages;
-    }
-
-    function createResultCard(result) {
-        const formatDate = (dateString) => new Date(dateString).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' });
-        return `
-            <div class="p-3 border rounded-md hover:bg-subtle hover:shadow-md cursor-pointer jurisprudentie-result-item border-l-4 border-transparent" data-id="${result.id}">
-                <h4 class="font-semibold text-primary text-md">${sanitizeInput(result.title)}</h4>
-                <div class="text-xs text-gray-500 mt-1">
-                    <span>${sanitizeInput(result.id)}</span> | <span>${formatDate(result.updated)}</span>
-                </div>
-            </div>`;
-    }
-
-    function handleResultClick(e) {
-        const resultItem = e.target.closest('.jurisprudentie-result-item');
-        if (!resultItem) return;
-
-        const resultId = resultItem.dataset.id;
-        
-        document.querySelectorAll('.jurisprudentie-result-item').forEach(el => el.classList.remove('result-item-selected'));
-        resultItem.classList.add('result-item-selected');
-
-        document.getElementById('jurisprudentie-detail-pane-placeholder').classList.add('hidden');
-        const detailPane = document.getElementById('jurisprudentie-detail-pane-content');
-        detailPane.classList.remove('hidden');
-        detailPane.classList.add('flex');
-
-        renderDetailTabs(resultId, 'summary');
-    }
-    
-    function handleTabClick(e) {
-        const tabButton = e.target.closest('.jurisprudentie-tab-button');
-        if (!tabButton) return;
-        
-        const resultId = tabButton.dataset.resultId;
-        const tabId = tabButton.dataset.tabId;
-        
-        renderDetailTabs(resultId, tabId);
-    }
-    
-    function renderDetailTabs(resultId, activeTabId = 'summary') {
-        const resultData = jurisprudentieResults.find(r => r.id === resultId);
-        if (!resultData) return;
-        
-        const tabsContainer = document.getElementById('jurisprudentie-detail-tabs');
-        const tabContentContainer = document.getElementById('jurisprudentie-detail-tab-content');
-
-        const tabs = [
-            { id: 'summary', name: 'Samenvatting' },
-            { id: 'details', name: 'Details' },
-            { id: 'link', name: 'Origineel' },
-        ];
-
-        tabsContainer.innerHTML = tabs.map(tab => {
-            const isActive = tab.id === activeTabId;
-            const classes = isActive ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
-            return `<button data-tab-id="${tab.id}" data-result-id="${resultId}" class="jurisprudentie-tab-button whitespace-nowrap py-3 px-1 border-b-2 text-sm ${classes}">${tab.name}</button>`;
-        }).join('');
-
-        let content = '';
-        switch(activeTabId) {
-            case 'summary':
-                content = `
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-bold text-primary">${sanitizeInput(resultData.title)}</h3>
-                        <div class="prose prose-sm max-w-none bg-subtle p-3 rounded-md border">
-                            ${resultData.summary ? sanitizeInput(resultData.summary).replace(/\n/g, '<br>') : '<i>Geen samenvatting beschikbaar.</i>'}
-                        </div>
-                    </div>`;
-                break;
-            case 'details':
-                const formattedDate = new Date(resultData.updated).toLocaleString('nl-NL', { dateStyle: 'full', timeStyle: 'short'});
-                content = `
-                    <div class="space-y-2 text-sm">
-                        <div class="flex"><strong class="w-28 flex-shrink-0">ECLI:</strong><span>${sanitizeInput(resultData.id)}</span></div>
-                        <div class="flex"><strong class="w-28 flex-shrink-0">Laatst bijgewerkt:</strong><span>${formattedDate}</span></div>
-                        <div class="flex"><strong class="w-28 flex-shrink-0">Bron:</strong><span>Rechtspraak.nl</span></div>
-                    </div>`;
-                break;
-            case 'link':
-                content = `<p>Klik op de link om de originele uitspraak direct op Rechtspraak.nl te bekijken:</p>
-                           <a href="${resultData.link}" target="_blank" rel="noopener noreferrer" class="text-primary font-semibold hover:underline break-all">${resultData.link}</a>`;
-                break;
-        }
-        tabContentContainer.innerHTML = content;
-    }
-
 </script>
+<script src="search.js" defer></script>
 </body>
 </html>
