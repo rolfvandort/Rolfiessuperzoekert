@@ -80,12 +80,15 @@
         details[open] > summary::before {
             transform: rotate(90deg);
         }
-        .filter-checkbox-group {
-            column-count: 2;
+        /* CORRECTIE VOOR OVERLAPPENDE TEKST */
+        .filter-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
         }
         @media (max-width: 768px) {
-            .filter-checkbox-group {
-                column-count: 1;
+            .filter-checkbox-grid {
+                grid-template-columns: 1fr;
             }
         }
         #jurisprudentie-loader {
@@ -99,6 +102,9 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        .search-block {
+            transition: opacity 0.3s;
         }
     </style>
 </head>
@@ -237,30 +243,43 @@
                         <h2 class="text-lg font-semibold text-primary">Zoekopdracht</h2>
                     </div>
                     <div id="jurisprudentie-form" class="p-4 space-y-4 overflow-y-auto">
-                        <div>
-                            <label for="jurisprudentie-omnibox" class="text-sm font-medium text-gray-700">Zoekterm</label>
-                            <textarea id="jurisprudentie-omnibox" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" placeholder="Voer trefwoorden in..."></textarea>
+                        
+                        <div id="keyword-search-block" class="search-block p-4 border rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">Zoeken op trefwoord</h3>
+                            <textarea id="jurisprudentie-omnibox" rows="3" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" placeholder="Voer trefwoorden in..."></textarea>
+                            <button id="keyword-search-button" class="mt-2 w-full bg-accent hover:bg-opacity-90 text-white font-bold py-2 rounded-lg shadow-sm">Zoek op Trefwoord</button>
+                            <p class="text-xs text-gray-500 mt-2">Let op: geavanceerde filters hieronder worden genegeerd bij deze zoekactie.</p>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label for="filter-date-start" class="text-sm font-medium">Datum na:</label><input type="date" id="filter-date-start" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
-                            <div><label for="filter-date-end" class="text-sm font-medium">Datum voor:</label><input type="date" id="filter-date-end" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
+                        <div class="relative flex py-2 items-center">
+                            <div class="flex-grow border-t border-gray-200"></div>
+                            <span class="flex-shrink mx-4 text-gray-400 text-sm">OF</span>
+                            <div class="flex-grow border-t border-gray-200"></div>
                         </div>
 
-                        <details id="filter-details-instances" class="border-t pt-4">
-                            <summary class="font-semibold text-gray-800">Instanties</summary>
-                            <div class="mt-2 space-y-2 pl-2 filter-checkbox-group">
+                        <div id="metadata-search-block" class="search-block p-4 border rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">Zoeken op metadata</h3>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label for="filter-date-start" class="text-sm font-medium">Datum na:</label><input type="date" id="filter-date-start" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
+                                    <div><label for="filter-date-end" class="text-sm font-medium">Datum voor:</label><input type="date" id="filter-date-end" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
                                 </div>
-                        </details>
 
-                        <details id="filter-details-law-areas" class="border-t pt-4">
-                            <summary class="font-semibold text-gray-800">Rechtsgebieden</summary>
-                            <div class="mt-2 space-y-2 pl-2 filter-checkbox-group">
-                                </div>
-                        </details>
-                    </div>
-                    <div class="mt-auto p-4 border-t bg-gray-50">
-                        <button id="jurisprudentie-search-button" class="w-full bg-accent hover:bg-opacity-90 text-white font-bold py-3 rounded-lg shadow-sm">Zoeken</button>
+                                <details id="filter-details-instances">
+                                    <summary class="font-semibold text-gray-800 text-sm">Instanties</summary>
+                                    <div class="mt-2 pl-2 filter-checkbox-grid">
+                                        </div>
+                                </details>
+
+                                <details id="filter-details-law-areas">
+                                    <summary class="font-semibold text-gray-800 text-sm">Rechtsgebieden</summary>
+                                    <div class="mt-2 pl-2 filter-checkbox-grid">
+                                        </div>
+                                </details>
+                            </div>
+                            <button id="filter-search-button" class="mt-4 w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 rounded-lg shadow-sm">Filter Resultaten</button>
+                            <p class="text-xs text-gray-500 mt-2">Let op: de zoekterm hierboven wordt bij deze actie genegeerd.</p>
+                        </div>
                     </div>
                 </aside>
 
@@ -268,20 +287,20 @@
                     <div class="p-4 border-b flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-primary">Resultaten (<span id="jurisprudentie-result-count">0</span>)</h2>
                         <div class="text-sm text-gray-400">
-                            Standaard sortering
+                            Sorteer op: <span class="font-semibold text-gray-600">Nieuwste</span>
                         </div>
                     </div>
                     <div class="flex-grow relative">
                         <div id="jurisprudentie-results-list" class="absolute inset-0 overflow-y-auto p-2 space-y-2">
                             <div class="flex items-center justify-center h-full text-center p-10 text-gray-500">
-                                Voer een zoekopdracht in om te beginnen.
+                                Gebruik een van de zoekmethodes om te beginnen.
                             </div>
                         </div>
                         <div id="jurisprudentie-loader-container" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
                             <div id="jurisprudentie-loader"></div>
                         </div>
                     </div>
-                    <div id="jurisprudentie-pagination" class="p-2 border-t flex justify-between items-center text-sm">
+                    <div id="jurisprudentie-pagination" class="hidden p-2 border-t flex justify-between items-center text-sm">
                         <button id="pagination-prev" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">&larr; Vorige</button>
                         <span id="pagination-info" class="text-gray-600"></span>
                         <button id="pagination-next" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Volgende &rarr;</button>
@@ -2096,8 +2115,8 @@
     }
 
     function populateFilters() {
-        const instancesContainer = document.querySelector('#filter-details-instances .filter-checkbox-group');
-        const lawAreasContainer = document.querySelector('#filter-details-law-areas .filter-checkbox-group');
+        const instancesContainer = document.querySelector('#filter-details-instances .filter-checkbox-grid');
+        const lawAreasContainer = document.querySelector('#filter-details-law-areas .filter-checkbox-grid');
 
         instancesContainer.innerHTML = INSTANCES_DATA.map(group => {
             return group.children ? createFilterGroup(group, 'filter-instance') : createCheckbox(group, 'filter-instance');
@@ -2127,10 +2146,8 @@
         data.forEach(group => {
             const parentCheckbox = form.querySelector(`input[name="${name}"][value="${group.value}"]`);
             if (parentCheckbox && parentCheckbox.checked && group.children) {
-                // Als de hoofdgroep is aangevinkt, voeg alleen die toe en sla kinderen over.
                 selectedValues.add(group.value);
             } else if (group.children) {
-                // Als de hoofdgroep niet is aangevinkt, controleer de kinderen.
                 group.children.forEach(child => {
                     const childCheckbox = form.querySelector(`input[name="${name}"][value="${child.value}"]`);
                     if (childCheckbox && childCheckbox.checked) {
@@ -2138,7 +2155,6 @@
                     }
                 });
             } else if (parentCheckbox && parentCheckbox.checked) {
-                // Voor items zonder kinderen (Hoge Raad, etc.)
                 selectedValues.add(group.value);
             }
         });
@@ -2146,33 +2162,57 @@
     }
 
     function initializeJurisprudentieApp() {
-        // Voorkom dat de filters en listeners opnieuw worden toegevoegd
         if (document.getElementById('jurisprudentie-form').dataset.initialized) return;
 
         populateFilters();
         
-        const searchButton = document.getElementById('jurisprudentie-search-button');
+        const keywordSearchButton = document.getElementById('keyword-search-button');
+        const filterSearchButton = document.getElementById('filter-search-button');
         const resultsList = document.getElementById('jurisprudentie-results-list');
         const tabsContainer = document.getElementById('jurisprudentie-detail-tabs');
         const prevButton = document.getElementById('pagination-prev');
         const nextButton = document.getElementById('pagination-next');
-
-        searchButton.addEventListener('click', () => {
+        const omnibox = document.getElementById('jurisprudentie-omnibox');
+        const metadataBlock = document.getElementById('metadata-search-block');
+        const keywordBlock = document.getElementById('keyword-search-block');
+        
+        // Listener voor Trefwoord-zoekknop
+        keywordSearchButton.addEventListener('click', () => {
             currentPage = 1;
-            handleJurisprudentieSearch();
+            handleJurisprudentieSearch('keyword');
         });
+
+        // Listener voor Filter-zoekknop
+        filterSearchButton.addEventListener('click', () => {
+            currentPage = 1;
+            handleJurisprudentieSearch('filter');
+        });
+
+        // Listeners voor paginering
         prevButton.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
-                handleJurisprudentieSearch();
+                const activeSearchType = document.getElementById('jurisprudentie-form').dataset.activeSearch;
+                handleJurisprudentieSearch(activeSearchType);
             }
         });
         nextButton.addEventListener('click', () => {
             const totalPages = Math.ceil(totalResults / resultsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
-                handleJurisprudentieSearch();
+                const activeSearchType = document.getElementById('jurisprudentie-form').dataset.activeSearch;
+                handleJurisprudentieSearch(activeSearchType);
             }
+        });
+
+        // Listeners voor interactieve UI
+        omnibox.addEventListener('input', () => {
+            metadataBlock.style.opacity = '0.5';
+            keywordBlock.style.opacity = '1';
+        });
+        metadataBlock.addEventListener('input', () => {
+            keywordBlock.style.opacity = '0.5';
+            metadataBlock.style.opacity = '1';
         });
         
         setupFilterListeners();
@@ -2182,39 +2222,52 @@
         document.getElementById('jurisprudentie-form').dataset.initialized = 'true';
     }
 
-    async function handleJurisprudentieSearch() {
+    async function handleJurisprudentieSearch(searchType) {
+        document.getElementById('jurisprudentie-form').dataset.activeSearch = searchType;
+        currentPage = 1; // Reset pagina bij elke nieuwe zoekopdracht
+
         const omnibox = document.getElementById('jurisprudentie-omnibox');
         const resultsList = document.getElementById('jurisprudentie-results-list');
         const resultCount = document.getElementById('jurisprudentie-result-count');
         const loader = document.getElementById('jurisprudentie-loader-container');
-        const searchButton = document.getElementById('jurisprudentie-search-button');
+        const keywordSearchButton = document.getElementById('keyword-search-button');
+        const filterSearchButton = document.getElementById('filter-search-button');
 
-        const searchTerm = omnibox.value.trim();
-        if (!searchTerm) {
-            showNotification('Voer een zoekterm in.', 'error');
-            return;
+        let requestBody = { page: currentPage };
+
+        if (searchType === 'keyword') {
+            const searchTerm = omnibox.value.trim();
+            if (!searchTerm) {
+                showNotification('Voer een zoekterm in.', 'error');
+                return;
+            }
+            requestBody.query = searchTerm;
+        } else { // searchType === 'filter'
+            const dateStart = document.getElementById('filter-date-start').value;
+            const dateEnd = document.getElementById('filter-date-end').value;
+            const instances = getSmartFilterValues('filter-instance', INSTANCES_DATA);
+            const lawAreas = getSmartFilterValues('filter-law-area', LAW_AREAS_DATA);
+
+            if (!dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
+                showNotification('Selecteer tenminste één filter.', 'error');
+                return;
+            }
+            requestBody.dateStart = dateStart;
+            requestBody.dateEnd = dateEnd;
+            requestBody.instances = instances;
+            requestBody.lawAreas = lawAreas;
         }
 
         loader.classList.remove('hidden');
-        searchButton.disabled = true;
-        searchButton.textContent = 'Bezig...';
+        keywordSearchButton.disabled = true;
+        filterSearchButton.disabled = true;
         
         resultsList.innerHTML = '';
         resultCount.textContent = '...';
         document.getElementById('jurisprudentie-detail-pane-placeholder').classList.remove('hidden');
         document.getElementById('jurisprudentie-detail-pane-content').classList.add('hidden');
-        updatePaginationUI();
+        updatePaginationUI(searchType);
         
-        // *** GEBRUIK DE NIEUWE SLIMME FILTER LOGICA ***
-        const requestBody = {
-            query: searchTerm,
-            dateStart: document.getElementById('filter-date-start').value,
-            dateEnd: document.getElementById('filter-date-end').value,
-            instances: getSmartFilterValues('filter-instance', INSTANCES_DATA),
-            lawAreas: getSmartFilterValues('filter-law-area', LAW_AREAS_DATA),
-            page: currentPage
-        };
-
         try {
             const response = await fetch('/.netlify/functions/search', {
                 method: 'POST',
@@ -2245,9 +2298,9 @@
             totalResults = 0;
         } finally {
             loader.classList.add('hidden');
-            searchButton.disabled = false;
-            searchButton.textContent = 'Zoeken';
-            updatePaginationUI();
+            keywordSearchButton.disabled = false;
+            filterSearchButton.disabled = false;
+            updatePaginationUI(searchType);
         }
     }
     
