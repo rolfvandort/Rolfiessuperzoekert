@@ -1,11 +1,16 @@
 const axios = require("axios");
 const xml2js = require("xml2js");
 
+/**
+ * Parses XML string to a JavaScript object.
+ * @param {string} xml - The XML string to parse.
+ * @returns {Promise<object>} - A promise that resolves with the parsed JavaScript object.
+ */
 const parseXml = (xml) => {
     return new Promise((resolve, reject) => {
         const parser = new xml2js.Parser({
-            explicitArray: false,
-            tagNameProcessors: [xml2js.processors.stripPrefix],
+            explicitArray: false, // Don't create arrays for single elements
+            tagNameProcessors: [xml2js.processors.stripPrefix], // Remove namespace prefixes from tags
         });
         parser.parseString(xml, (err, result) => {
             if (err) reject(err);
@@ -15,115 +20,21 @@ const parseXml = (xml) => {
 };
 
 exports.handler = async (event, context) => {
+    // Only allow POST requests
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: JSON.stringify({ message: 'Alleen POST requests zijn toegestaan.' }) };
     }
     
+    // Check for the presence of a request body
     if (!event.body) {
         return { statusCode: 400, body: JSON.stringify({ message: 'Request body ontbreekt.' }) };
     }
 
     try {
         const body = JSON.parse(event.body);
+        // Destructure parameters from the request body
         const { 
             query, 
-            dateStart, 
-            dateEnd, 
-            instances = [], 
-            lawAreas = [], 
-            page = 1 
-        } = body;
-
-        const resultsPerPage = 20;
-
-        // Validatie: er moet ofwel een query of een filter zijn.
-        if (!query && !dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
-            return { statusCode: 400, body: JSON.stringify({ message: 'Geen zoekterm of filter opgegeven.' }) };
-        }
-
-        const params = new URLSearchParams();
-        
-        // De 'q' parameter wordt alleen meegestuurd als het een pure trefwoord-zoekopdracht is.
-        if (query && !dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
-             params.append('q', query);
-        }
-
-        params.append('return', 'DOC');
-        params.append('max', resultsPerPage);
-        
-        // CORRECTIE 1: Sorteren volgens documentatie
-        params.append('sort', 'DESC');
-
-        // CORRECTIE 2: Paginering volgens documentatie
-        const fromValue = (page - 1) * resultsPerPage;
-        if (fromValue > 0) {
-            params.append('from', fromValue);
-        }
-
-        // CORRECTIE 3: Datums volgens documentatie
-        if (dateStart) params.append('date', dateStart);
-        if (dateEnd) params.append('date', dateEnd);
-        
-        // CORRECTIE 4: Instanties & Rechtsgebieden volgens documentatie
-        instances.forEach(instance => params.append('creator', instance));
-        lawAreas.forEach(area => params.append('subject', area));
-
-        const apiUrl = `https://data.rechtspraak.nl/uitspraken/zoeken?${params.toString()}`;
-        
-        console.log("DEFINITIEVE API URL:", apiUrl);
-
-        const apiResponse = await axios.get(apiUrl, {
-            headers: { 'Accept': 'application/atom+xml' }
-        });
-        
-        const parsedData = await parseXml(apiResponse.data);
-        const entries = parsedData?.feed?.entry;
-        
-        // *** CRUCIALE FIX: Totaal aantal resultaten correct parsen uit de <subtitle> tag ***
-        let totalResults = 0;
-        const subtitle = parsedData?.feed?.subtitle;
-        if (typeof subtitle === 'string') {
-            const match = subtitle.match(/\d+/); // Zoek naar de eerste reeks getallen
-            if (match) {
-                totalResults = parseInt(match[0], 10);
-            }
-        }
-
-        if (!entries) {
-            return { statusCode: 200, body: JSON.stringify({ results: [], total: totalResults }) };
-        }
-
-        const entriesArray = Array.isArray(entries) ? entries : [entries];
-
-        const cleanResults = entriesArray.map(entry => {
-            let summary = 'Geen samenvatting beschikbaar.';
-            if (entry?.summary) {
-                summary = (typeof entry.summary === 'object' && entry.summary._) ? entry.summary._ : entry.summary;
-            }
-
-            return {
-                id: entry?.id ?? 'ID Onbekend',
-                title: entry?.title ?? 'Titel Onbekend',
-                summary: summary,
-                updated: entry?.updated ?? new Date().toISOString(),
-                link: entry?.link?.$?.href ?? '#'
-            };
-        });
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ results: cleanResults, total: totalResults })
-        };
-
-    } catch (error) {
-        const errorMessage = error.response ? JSON.stringify(error.response.data) : error.message;
-        console.error('Fout in serverless functie:', errorMessage);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Er is een interne fout opgetreden.', error: errorMessage })
-        };
-    }
-};            query, 
             dateStart, 
             dateEnd, 
             instances = [], 
