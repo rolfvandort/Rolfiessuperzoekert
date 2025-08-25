@@ -80,13 +80,12 @@
         details[open] > summary::before {
             transform: rotate(90deg);
         }
-        /* CORRECTIE VOOR OVERLAPPENDE TEKST */
         .filter-checkbox-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 0.5rem;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) { /* Aangepast voor betere weergave op tablets */
             .filter-checkbox-grid {
                 grid-template-columns: 1fr;
             }
@@ -244,21 +243,9 @@
                     </div>
                     <div id="jurisprudentie-form" class="p-4 space-y-4 overflow-y-auto">
                         
-                        <div id="keyword-search-block" class="search-block p-4 border rounded-lg">
-                            <h3 class="font-semibold text-gray-800 mb-2">Zoeken op trefwoord</h3>
-                            <textarea id="jurisprudentie-omnibox" rows="3" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" placeholder="Voer trefwoorden in..."></textarea>
-                            <button id="keyword-search-button" class="mt-2 w-full bg-accent hover:bg-opacity-90 text-white font-bold py-2 rounded-lg shadow-sm">Zoek op Trefwoord</button>
-                            <p class="text-xs text-gray-500 mt-2">Let op: geavanceerde filters hieronder worden genegeerd bij deze zoekactie.</p>
-                        </div>
-
-                        <div class="relative flex py-2 items-center">
-                            <div class="flex-grow border-t border-gray-200"></div>
-                            <span class="flex-shrink mx-4 text-gray-400 text-sm">OF</span>
-                            <div class="flex-grow border-t border-gray-200"></div>
-                        </div>
-
-                        <div id="metadata-search-block" class="search-block p-4 border rounded-lg">
+                        <div id="metadata-search-block" class="search-block">
                             <h3 class="font-semibold text-gray-800 mb-2">Zoeken op metadata</h3>
+                            <p class="text-xs text-gray-500 mb-4">Laat velden leeg om ze niet mee te nemen in het filter.</p>
                             <div class="space-y-4">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div><label for="filter-date-start" class="text-sm font-medium">Datum na:</label><input type="date" id="filter-date-start" class="mt-1 w-full rounded-md border-gray-300 text-sm"></div>
@@ -277,9 +264,10 @@
                                         </div>
                                 </details>
                             </div>
-                            <button id="filter-search-button" class="mt-4 w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 rounded-lg shadow-sm">Filter Resultaten</button>
-                            <p class="text-xs text-gray-500 mt-2">Let op: de zoekterm hierboven wordt bij deze actie genegeerd.</p>
                         </div>
+                    </div>
+                    <div class="mt-auto p-4 border-t bg-gray-50">
+                        <button id="filter-search-button" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg shadow-sm">Filter Resultaten</button>
                     </div>
                 </aside>
 
@@ -293,7 +281,7 @@
                     <div class="flex-grow relative">
                         <div id="jurisprudentie-results-list" class="absolute inset-0 overflow-y-auto p-2 space-y-2">
                             <div class="flex items-center justify-center h-full text-center p-10 text-gray-500">
-                                Gebruik een van de zoekmethodes om te beginnen.
+                                Gebruik de filters om te zoeken.
                             </div>
                         </div>
                         <div id="jurisprudentie-loader-container" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
@@ -2035,57 +2023,38 @@
     let totalResults = 0;
     const resultsPerPage = 20;
     
-    // Data voor de geavanceerde filters
+    // Data voor de geavanceerde filters met CORRECTE URI's
     const INSTANCES_DATA = [
-        { name: 'Hoge Raad', value: 'HR' },
-        { name: 'Raad van State', value: 'RVS' },
-        { name: 'Centrale Raad van Beroep', value: 'CRVB' },
-        { name: 'College van Beroep', value: 'CBB' },
-        { name: 'Gerechtshoven', value: 'GERECHTSHOOF', children: [
-            { name: 'Amsterdam', value: 'GHAMS' },
-            { name: 'Den Haag', value: 'GHDHA' },
-            { name: 'Arnhem-Leeuwarden', value: 'GHARL' },
-            { name: '\'s-Hertogenbosch', value: 'GHSHE' }
+        { name: 'Hoge Raad', value: 'http://psi.rechtspraak.nl/resource/instantie/HR' },
+        { name: 'Raad van State', value: 'http://psi.rechtspraak.nl/resource/instantie/RVS' },
+        { name: 'Centrale Raad van Beroep', value: 'http://psi.rechtspraak.nl/resource/instantie/CRVB' },
+        { name: 'College van Beroep', value: 'http://psi.rechtspraak.nl/resource/instantie/CBB' },
+        { name: 'Gerechtshoven', value: 'GERECHTSHOOF', children: [ // Dummy value for parent
+            { name: 'Amsterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/GHAMS' },
+            { name: 'Den Haag', value: 'http://psi.rechtspraak.nl/resource/instantie/GHDHA' },
+            { name: 'Arnhem-Leeuwarden', value: 'http://psi.rechtspraak.nl/resource/instantie/GHARL' },
+            { name: '\'s-Hertogenbosch', value: 'http://psi.rechtspraak.nl/resource/instantie/GHSHE' }
         ]},
-        { name: 'Rechtbanken', value: 'RECHTBANK', children: [
-            { name: 'Amsterdam', value: 'RBAMS' },
-            { name: 'Den Haag', value: 'RBDHA' },
-            { name: 'Gelderland', value: 'RBGEL' },
-            { name: 'Limburg', value: 'RBLIM' },
-            { name: 'Midden-Nederland', value: 'RBMNE' },
-            { name: 'Noord-Holland', value: 'RBNHO' },
-            { name: 'Noord-Nederland', value: 'RBNNE' },
-            { name: 'Oost-Brabant', value: 'RBOBR' },
-            { name: 'Overijssel', value: 'RBOVE' },
-            { name: 'Rotterdam', value: 'RBROT' },
-            { name: 'Zeeland-West-Brabant', value: 'RBZWB' }
+        { name: 'Rechtbanken', value: 'RECHTBANK', children: [ // Dummy value for parent
+            { name: 'Amsterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/RBAMS' },
+            { name: 'Den Haag', value: 'http://psi.rechtspraak.nl/resource/instantie/RBDHA' },
+            { name: 'Gelderland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBGEL' },
+            { name: 'Limburg', value: 'http://psi.rechtspraak.nl/resource/instantie/RBLIM' },
+            { name: 'Midden-Nederland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBMNE' },
+            { name: 'Noord-Holland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBNHO' },
+            { name: 'Noord-Nederland', value: 'http://psi.rechtspraak.nl/resource/instantie/RBNNE' },
+            { name: 'Oost-Brabant', value: 'http://psi.rechtspraak.nl/resource/instantie/RBOBR' },
+            { name: 'Overijssel', value: 'http://psi.rechtspraak.nl/resource/instantie/RBOVE' },
+            { name: 'Rotterdam', value: 'http://psi.rechtspraak.nl/resource/instantie/RBROT' },
+            { name: 'Zeeland-West-Brabant', value: 'http://psi.rechtspraak.nl/resource/instantie/RBZWB' }
         ]}
     ];
 
     const LAW_AREAS_DATA = [
-        { name: 'Bestuursrecht', value: 'bestuursrecht', children: [
-            { name: 'Ambtenarenrecht', value: 'bestuursrecht/ambtenarenrecht' },
-            { name: 'Belastingrecht', value: 'bestuursrecht/belastingrecht' },
-            { name: 'Omgevingsrecht', value: 'bestuursrecht/omgevingsrecht' },
-            { name: 'Socialezekerheidsrecht', value: 'bestuursrecht/socialezekerheidsrecht' },
-            { name: 'Vreemdelingenrecht', value: 'bestuursrecht/vreemdelingenrecht' }
-        ]},
-        { name: 'Civiel recht', value: 'civiel', children: [
-            { name: 'Aanbestedingsrecht', value: 'civiel/aanbestedingsrecht' },
-            { name: 'Arbeidsrecht', value: 'civiel/arbeidsrecht' },
-            { name: 'Burgerlijk procesrecht', value: 'civiel/burgerlijkprocesrecht' },
-            { name: 'Insolventierecht', value: 'civiel/insolventierecht' },
-            { name: 'Personen- en familierecht', value: 'civiel/personen-enfamilierecht' },
-            { name: 'Verbintenissenrecht', value: 'civiel/verbintenissenrecht' }
-        ]},
-        { name: 'Internationaal', value: 'internationaal', children: [
-            { name: 'Mensenrechten', value: 'internationaal/mensenrechten' },
-            { name: 'Volkenrecht', value: 'internationaal/volkenrecht' },
-        ]},
-        { name: 'Strafrecht', value: 'strafrecht', children: [
-            { name: 'Materieel strafrecht', value: 'strafrecht/materieelstrafrecht' },
-            { name: 'Strafprocesrecht', value: 'strafrecht/strafprocesrecht' },
-        ]}
+        { name: 'Bestuursrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht', children: []},
+        { name: 'Civiel recht', value: 'http://psi.rechtspraak.nl/rechtsgebied#civiel', children: []},
+        { name: 'Internationaal', value: 'http://psi.rechtspraak.nl/rechtsgebied#internationaal', children: []},
+        { name: 'Strafrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#strafrecht', children: []}
     ];
 
     function createCheckbox(item, name) {
@@ -2104,7 +2073,7 @@
         return `
             <div>
                 <label class="font-semibold text-sm flex items-center">
-                    <input type="checkbox" data-group-parent="${group.value}" name="${name}" value="${group.value}" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                    <input type="checkbox" data-group-parent="${group.value}" name="${name}" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
                     <span class="ml-2">${group.name}</span>
                 </label>
                 <div class="pl-6 mt-1 space-y-1">
@@ -2119,12 +2088,10 @@
         const lawAreasContainer = document.querySelector('#filter-details-law-areas .filter-checkbox-grid');
 
         instancesContainer.innerHTML = INSTANCES_DATA.map(group => {
-            return group.children ? createFilterGroup(group, 'filter-instance') : createCheckbox(group, 'filter-instance');
+            return group.children && group.children.length > 0 ? createFilterGroup(group, 'filter-instance') : createCheckbox(group, 'filter-instance');
         }).join('');
         
-        lawAreasContainer.innerHTML = LAW_AREAS_DATA.map(group => {
-            return group.children ? createFilterGroup(group, 'filter-law-area') : createCheckbox(group, 'filter-law-area');
-        }).join('');
+        lawAreasContainer.innerHTML = LAW_AREAS_DATA.map(group => createCheckbox(group, 'filter-law-area')).join('');
     }
     
     function setupFilterListeners() {
@@ -2144,18 +2111,24 @@
         const form = document.getElementById('jurisprudentie-form');
 
         data.forEach(group => {
-            const parentCheckbox = form.querySelector(`input[name="${name}"][value="${group.value}"]`);
-            if (parentCheckbox && parentCheckbox.checked && group.children) {
-                selectedValues.add(group.value);
-            } else if (group.children) {
+            const parentCheckbox = form.querySelector(`input[name="${name}"][data-group-parent="${group.value}"]`);
+            if (parentCheckbox && parentCheckbox.checked) {
+                // Als de hoofdgroep is aangevinkt, alle kinderen toevoegen
+                group.children.forEach(child => selectedValues.add(child.value));
+            } else if (group.children && group.children.length > 0) {
+                // Als de hoofdgroep niet is aangevinkt, controleer de kinderen individueel
                 group.children.forEach(child => {
                     const childCheckbox = form.querySelector(`input[name="${name}"][value="${child.value}"]`);
                     if (childCheckbox && childCheckbox.checked) {
                         selectedValues.add(child.value);
                     }
                 });
-            } else if (parentCheckbox && parentCheckbox.checked) {
-                selectedValues.add(group.value);
+            } else {
+                // Voor items zonder kinderen (Hoge Raad, etc.)
+                const singleCheckbox = form.querySelector(`input[name="${name}"][value="${group.value}"]`);
+                if (singleCheckbox && singleCheckbox.checked) {
+                    selectedValues.add(group.value);
+                }
             }
         });
         return Array.from(selectedValues);
@@ -2166,53 +2139,29 @@
 
         populateFilters();
         
-        const keywordSearchButton = document.getElementById('keyword-search-button');
         const filterSearchButton = document.getElementById('filter-search-button');
         const resultsList = document.getElementById('jurisprudentie-results-list');
         const tabsContainer = document.getElementById('jurisprudentie-detail-tabs');
         const prevButton = document.getElementById('pagination-prev');
         const nextButton = document.getElementById('pagination-next');
-        const omnibox = document.getElementById('jurisprudentie-omnibox');
-        const metadataBlock = document.getElementById('metadata-search-block');
-        const keywordBlock = document.getElementById('keyword-search-block');
         
-        // Listener voor Trefwoord-zoekknop
-        keywordSearchButton.addEventListener('click', () => {
-            currentPage = 1;
-            handleJurisprudentieSearch('keyword');
-        });
-
-        // Listener voor Filter-zoekknop
         filterSearchButton.addEventListener('click', () => {
             currentPage = 1;
-            handleJurisprudentieSearch('filter');
+            handleJurisprudentieSearch();
         });
 
-        // Listeners voor paginering
         prevButton.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
-                const activeSearchType = document.getElementById('jurisprudentie-form').dataset.activeSearch;
-                handleJurisprudentieSearch(activeSearchType);
+                handleJurisprudentieSearch();
             }
         });
         nextButton.addEventListener('click', () => {
             const totalPages = Math.ceil(totalResults / resultsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
-                const activeSearchType = document.getElementById('jurisprudentie-form').dataset.activeSearch;
-                handleJurisprudentieSearch(activeSearchType);
+                handleJurisprudentieSearch();
             }
-        });
-
-        // Listeners voor interactieve UI
-        omnibox.addEventListener('input', () => {
-            metadataBlock.style.opacity = '0.5';
-            keywordBlock.style.opacity = '1';
-        });
-        metadataBlock.addEventListener('input', () => {
-            keywordBlock.style.opacity = '0.5';
-            metadataBlock.style.opacity = '1';
         });
         
         setupFilterListeners();
@@ -2222,51 +2171,38 @@
         document.getElementById('jurisprudentie-form').dataset.initialized = 'true';
     }
 
-    async function handleJurisprudentieSearch(searchType) {
-        document.getElementById('jurisprudentie-form').dataset.activeSearch = searchType;
-        currentPage = 1; // Reset pagina bij elke nieuwe zoekopdracht
-
-        const omnibox = document.getElementById('jurisprudentie-omnibox');
+    async function handleJurisprudentieSearch() {
         const resultsList = document.getElementById('jurisprudentie-results-list');
         const resultCount = document.getElementById('jurisprudentie-result-count');
         const loader = document.getElementById('jurisprudentie-loader-container');
-        const keywordSearchButton = document.getElementById('keyword-search-button');
         const filterSearchButton = document.getElementById('filter-search-button');
 
-        let requestBody = { page: currentPage };
+        const dateStart = document.getElementById('filter-date-start').value;
+        const dateEnd = document.getElementById('filter-date-end').value;
+        const instances = getSmartFilterValues('filter-instance', INSTANCES_DATA);
+        const lawAreas = getSmartFilterValues('filter-law-area', LAW_AREAS_DATA);
 
-        if (searchType === 'keyword') {
-            const searchTerm = omnibox.value.trim();
-            if (!searchTerm) {
-                showNotification('Voer een zoekterm in.', 'error');
-                return;
-            }
-            requestBody.query = searchTerm;
-        } else { // searchType === 'filter'
-            const dateStart = document.getElementById('filter-date-start').value;
-            const dateEnd = document.getElementById('filter-date-end').value;
-            const instances = getSmartFilterValues('filter-instance', INSTANCES_DATA);
-            const lawAreas = getSmartFilterValues('filter-law-area', LAW_AREAS_DATA);
-
-            if (!dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
-                showNotification('Selecteer tenminste één filter.', 'error');
-                return;
-            }
-            requestBody.dateStart = dateStart;
-            requestBody.dateEnd = dateEnd;
-            requestBody.instances = instances;
-            requestBody.lawAreas = lawAreas;
+        if (!dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
+            showNotification('Selecteer tenminste één filter.', 'error');
+            return;
         }
 
+        let requestBody = { 
+            page: currentPage,
+            dateStart: dateStart,
+            dateEnd: dateEnd,
+            instances: instances,
+            lawAreas: lawAreas
+        };
+
         loader.classList.remove('hidden');
-        keywordSearchButton.disabled = true;
         filterSearchButton.disabled = true;
         
         resultsList.innerHTML = '';
         resultCount.textContent = '...';
         document.getElementById('jurisprudentie-detail-pane-placeholder').classList.remove('hidden');
         document.getElementById('jurisprudentie-detail-pane-content').classList.add('hidden');
-        updatePaginationUI(searchType);
+        updatePaginationUI();
         
         try {
             const response = await fetch('/.netlify/functions/search', {
@@ -2298,9 +2234,8 @@
             totalResults = 0;
         } finally {
             loader.classList.add('hidden');
-            keywordSearchButton.disabled = false;
             filterSearchButton.disabled = false;
-            updatePaginationUI(searchType);
+            updatePaginationUI();
         }
     }
     
@@ -2310,7 +2245,7 @@
         const nextButton = document.getElementById('pagination-next');
         const pageInfo = document.getElementById('pagination-info');
 
-        if (totalResults === 0) {
+        if (totalResults <= resultsPerPage) {
             paginationContainer.classList.add('hidden');
             return;
         }
