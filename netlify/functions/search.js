@@ -36,39 +36,35 @@ exports.handler = async (event, context) => {
 
         const resultsPerPage = 20;
 
-        if (!query) {
-            return { statusCode: 400, body: JSON.stringify({ message: 'Zoekterm is leeg.' }) };
-        }
-
         // Bouw de API URL met de CORRECTE parameters uit de documentatie
         const params = new URLSearchParams();
         
-        // De 'q' parameter voor de zoekterm is niet officieel gedocumenteerd, maar wel de standaard.
-        // We behouden deze, maar voegen de andere correcte parameters toe.
-        if (query) {
+        // De 'q' parameter voor de zoekterm is ongedocumenteerd voor deze endpoint.
+        // We sturen deze alleen mee als er GEEN andere filters zijn.
+        if (query && !dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
              params.append('q', query);
         }
 
         params.append('return', 'DOC');
         params.append('max', resultsPerPage);
         
-        // *** CORRECTIE 1: Sorteren ***
-        // De parameter accepteert alleen DESC of ASC.
+        // CORRECTIE 1: Sorteren
+        // De parameter accepteert alleen DESC of ASC. Sorteert op wijzigingsdatum.
         params.append('sort', 'DESC');
 
-        // *** CORRECTIE 2: Paginering ***
-        // De parameter is 'from', niet 'page'. De waarde is het start-item.
+        // CORRECTIE 2: Paginering
+        // De parameter is 'from', niet 'page'. De waarde is het start-item (0-based).
         const fromValue = (page - 1) * resultsPerPage;
         if (fromValue > 0) {
             params.append('from', fromValue);
         }
 
-        // *** CORRECTIE 3: Datums ***
+        // CORRECTIE 3: Datums
         // De parameter is twee keer 'date', niet 'date-start' en 'date-end'.
         if (dateStart) params.append('date', dateStart);
         if (dateEnd) params.append('date', dateEnd);
         
-        // *** CORRECTIE 4: Instanties & Rechtsgebieden ***
+        // CORRECTIE 4: Instanties & Rechtsgebieden
         // De parameters zijn 'creator' en 'subject'.
         instances.forEach(instance => params.append('creator', instance));
         lawAreas.forEach(area => params.append('subject', area));
@@ -84,7 +80,17 @@ exports.handler = async (event, context) => {
         const parsedData = await parseXml(apiResponse.data);
         const entries = parsedData?.feed?.entry;
         
-        const totalResults = parseInt(parsedData?.feed?.totalResults?._ || '0', 10);
+        // *** CRUCIALE FIX: Haal totaal aantal resultaten correct uit de <subtitle> tag ***
+        let totalResults = 0;
+        const subtitle = parsedData?.feed?.subtitle;
+        if (typeof subtitle === 'string' && subtitle.includes(':')) {
+            // Extraheer het getal uit een string zoals "Aantal gevonden ECLI's: 531"
+            const numberPart = subtitle.split(':')[1].trim();
+            totalResults = parseInt(numberPart, 10) || 0;
+        } else if (entries) {
+            // Fallback voor het geval de subtitle er anders uitziet maar er wel resultaten zijn
+            totalResults = (Array.isArray(entries) ? entries.length : 1);
+        }
 
         if (!entries || entries.length === 0) {
             return { statusCode: 200, body: JSON.stringify({ results: [], total: 0 }) };
