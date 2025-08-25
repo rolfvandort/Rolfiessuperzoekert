@@ -2126,7 +2126,7 @@
 
         data.forEach(group => {
             const parentCheckbox = form.querySelector(`input[name="${name}"][value="${group.value}"]`);
-            if (parentCheckbox && parentCheckbox.checked) {
+            if (parentCheckbox && parentCheckbox.checked && group.children) {
                 // Als de hoofdgroep is aangevinkt, voeg alleen die toe en sla kinderen over.
                 selectedValues.add(group.value);
             } else if (group.children) {
@@ -2137,6 +2137,9 @@
                         selectedValues.add(child.value);
                     }
                 });
+            } else if (parentCheckbox && parentCheckbox.checked) {
+                // Voor items zonder kinderen (Hoge Raad, etc.)
+                selectedValues.add(group.value);
             }
         });
         return Array.from(selectedValues);
@@ -2222,7 +2225,7 @@
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("Server error details:", errorData.error);
-                throw new Error(`Serverfout: ${response.status}. Details: ${errorData.error || 'Onbekend'}`);
+                throw new Error(`Serverfout: ${response.status}.`);
             }
 
             const data = await response.json();
