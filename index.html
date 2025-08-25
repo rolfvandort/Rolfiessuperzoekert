@@ -256,14 +256,14 @@
 
                                 <details id="filter-details-instances" open>
                                     <summary class="font-semibold text-gray-800 text-sm">Instanties</summary>
-                                    <div class="mt-2 pl-2 filter-checkbox-container">
+                                    <div class="mt-2 filter-checkbox-container">
                                         <!-- Checkboxes worden hier dynamisch ingeladen -->
                                     </div>
                                 </details>
 
                                 <details id="filter-details-law-areas" open>
                                     <summary class="font-semibold text-gray-800 text-sm">Rechtsgebieden</summary>
-                                    <div class="mt-2 pl-2 filter-checkbox-container">
+                                    <div class="mt-2 filter-checkbox-container">
                                         <!-- Checkboxes worden hier dynamisch ingeladen -->
                                     </div>
                                 </details>
@@ -2054,6 +2054,7 @@
         ]}
     ];
 
+    // *** CORRECTIE 1: De 'children' array is verwijderd waar deze niet nodig was. ***
     const LAW_AREAS_DATA = [
         { name: 'Bestuursrecht', value: 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht'},
         { name: 'Civiel recht', value: 'http://psi.rechtspraak.nl/rechtsgebied#civiel'},
@@ -2098,12 +2099,15 @@
         lawAreasContainer.innerHTML = LAW_AREAS_DATA.map(group => createCheckbox(group, 'filter-law-area')).join('');
     }
     
+    // *** CORRECTIE 2: De selector is robuuster gemaakt om de kind-elementen correct te vinden. ***
     function setupFilterListeners() {
         document.querySelectorAll('input[data-group-parent]').forEach(parentCheckbox => {
             parentCheckbox.addEventListener('change', (e) => {
-                const groupContainer = e.target.closest('div');
-                // Zoek de container met de onderliggende checkboxes
-                const childrenContainer = groupContainer.nextElementSibling;
+                // Ga omhoog naar de 'label', dan naar de 'div' die de label en de kinder-div omvat,
+                // en zoek dan naar de kinder-div.
+                const groupContainer = e.target.closest('.space-y-1');
+                const childrenContainer = groupContainer.querySelector('.pl-5');
+                
                 if (childrenContainer) {
                     const childCheckboxes = childrenContainer.querySelectorAll(`input[name="${e.target.name}"]`);
                     childCheckboxes.forEach(child => {
@@ -2114,9 +2118,6 @@
         });
     }
 
-    // *** GECORRIGEERDE FUNCTIE ***
-    // Deze functie is eenvoudiger en leest direct alle aangevinkte checkboxes uit,
-    // behalve de 'parent' checkboxes die alleen voor de UI zijn.
     function getSelectedFilterValues(name) {
         const checkedInputs = document.querySelectorAll(`#jurisprudentie-form input[name="${name}"]:checked:not([data-group-parent])`);
         return Array.from(checkedInputs).map(input => input.value);
@@ -2166,19 +2167,13 @@
         const loader = document.getElementById('jurisprudentie-loader-container');
         const filterSearchButton = document.getElementById('filter-search-button');
 
-        const dateStart = document.getElementById('filter-date-start').value;
-        const dateEnd = document.getElementById('filter-date-end').value;
+        // *** CORRECTIE 3: Zorg ervoor dat lege datumvelden als lege strings worden doorgegeven. ***
+        const dateStart = document.getElementById('filter-date-start').value || "";
+        const dateEnd = document.getElementById('filter-date-end').value || "";
         
-        // Gebruik de nieuwe, gecorrigeerde functie
         const instances = getSelectedFilterValues('filter-instance');
         const lawAreas = getSelectedFilterValues('filter-law-area');
-
-        // De validatie blijft hetzelfde
-        if (!dateStart && !dateEnd && instances.length === 0 && lawAreas.length === 0) {
-            showNotification('Selecteer tenminste één filter.', 'error');
-            return;
-        }
-
+        
         let requestBody = { 
             page: currentPage,
             dateStart: dateStart,
