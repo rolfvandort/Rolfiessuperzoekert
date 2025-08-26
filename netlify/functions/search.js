@@ -1,26 +1,32 @@
-
 const fetch = require('node-fetch');
 const { XMLParser } = require('fast-xml-parser');
 
-// De handler-functie die Netlify zal uitvoeren
 exports.handler = async (event, context) => {
-    // Bouw de API URL op basis van de parameters van de front-end
     const API_BASE_URL = 'https://data.rechtspraak.nl/uitspraken/zoeken';
-    const params = new URLSearchParams(event.queryStringParameters);
-    const apiUrl = `${API_BASE_URL}?${params.toString()}`;
+    
+    // --- START VAN DE AANPASSING ---
+    // Filter de parameters om alleen die met een waarde over te houden
+    const originalParams = event.queryStringParameters;
+    const filteredParams = new URLSearchParams();
+    for (const key in originalParams) {
+        if (originalParams[key]) { // Alleen toevoegen als de parameter een waarde heeft
+            filteredParams.append(key, originalParams[key]);
+        }
+    }
+    // --- EINDE VAN DE AANPASSING ---
+
+    const apiUrl = `${API_BASE_URL}?${filteredParams.toString()}`;
 
     try {
-        // Maak de server-naar-server call naar de Rechtspraak.nl API
         const apiResponse = await fetch(apiUrl);
 
-        // Vang fouten van de API af (bv. 404 of 500)
         if (!apiResponse.ok) {
+            // Geef de status van de externe API direct door in de foutmelding
             throw new Error(`Rechtspraak.nl API reageerde met status: ${apiResponse.status}`);
         }
 
         const xmlText = await apiResponse.text();
 
-        // Configureer de XML-parser
         const parser = new XMLParser({
             ignoreAttributes: false,
             attributeNamePrefix: "_",
@@ -28,11 +34,9 @@ exports.handler = async (event, context) => {
         });
         const parsedXml = parser.parse(xmlText);
         
-        // Transformeer de complexe XML/JSON-structuur naar een schone, bruikbare structuur
         const feed = parsedXml.feed;
         let entries = feed.entry;
 
-        // Als er maar één resultaat is, is het geen array. Maak er een array van.
         if (entries && !Array.isArray(entries)) {
             entries = [entries];
         }
@@ -45,12 +49,10 @@ exports.handler = async (event, context) => {
             link: entry.link._href,
         }));
 
-        // Haal het totaalaantal resultaten uit de <subtitle> tag
         const subtitle = feed.subtitle || "Aantal gevonden ECLI's: 0";
         const totalMatch = subtitle.match(/\d+/);
         const totalResults = totalMatch ? parseInt(totalMatch[0], 10) : 0;
 
-        // Stuur een succesvolle JSON-respons terug naar de front-end
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
@@ -64,7 +66,6 @@ exports.handler = async (event, context) => {
     } catch (error) {
         console.error("Fout in serverless-functie:", error);
         
-        // Stuur een duidelijke foutmelding terug naar de front-end
         return {
             statusCode: 500,
             headers: { 'Content-Type': 'application/json' },
