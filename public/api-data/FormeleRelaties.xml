@@ -1,1 +1,638 @@
-
+<FormeleRelaties xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<FormeleRelatie>
+<Naam>Hoger beroep</Naam>
+<Identifier>http://psi.rechtspraak.nl/hogerBeroep</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCBb</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeRvS</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TuchtrechtelijkeInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Koninkrijksinstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Koninkrijksinstantie</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Hoger beroep</LabelEerdereAanleg>
+<LabelLatereAanleg>Eerste aanleg</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Bekrachtiging/bevestiging</Naam>
+<Naam>(Gedeeltelijke) vernietiging en zelf afgedaan</Naam>
+<Naam>(Gedeeltelijke) vernietiging met terugwijzen</Naam>
+<Naam>Niet bevoegd</Naam>
+<Naam>Niet ontvankelijk</Naam>
+<Naam>Overig</Naam>
+<Naam>Meerdere afhandelingswijzen</Naam>
+<Naam>Onduidelijk</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Verzet</Naam>
+<Identifier>http://psi.rechtspraak.nl/verzet</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Verzetvonnis</LabelEerdereAanleg>
+<LabelLatereAanleg>Op verzet tegen</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Verzet ongegrond</Naam>
+<Naam>Verzet toegewezen</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Tussenuitspraak</Naam>
+<Identifier>http://psi.rechtspraak.nl/tussenuitspraak</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Einduitspraak</LabelEerdereAanleg>
+<LabelLatereAanleg>Tussenuitspraak</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Tussenuitspraak bestuurlijke lus</Naam>
+<Identifier>
+http://psi.rechtspraak.nl/tussenuitspraakBestuurlijkeLus
+</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeRvS</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCBb</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Einduitspraak na bestuurlijke lus</LabelEerdereAanleg>
+<LabelLatereAanleg>Tussenuitspraak bestuurlijke lus</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Cassatie</Naam>
+<Identifier>http://psi.rechtspraak.nl/cassatie</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Cassatie</LabelEerdereAanleg>
+<LabelLatereAanleg>In cassatie op</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Bekrachtiging/bevestiging</Naam>
+<Naam>(Gedeeltelijke) vernietiging en zelf afgedaan</Naam>
+<Naam>(Gedeeltelijke) vernietiging met terugwijzen</Naam>
+<Naam>Niet bevoegd</Naam>
+<Naam>Niet ontvankelijk</Naam>
+<Naam>Overig</Naam>
+<Naam>Meerdere afhandelingswijzen</Naam>
+<Naam>(Gedeeltelijke) vernietiging met verwijzen</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Terugverwijzing</Naam>
+<Identifier>http://psi.rechtspraak.nl/terugverwijzing</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Terugverwijzing naar</LabelEerdereAanleg>
+<LabelLatereAanleg>Na terugverwijzing door</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Verwijzing</Naam>
+<Identifier>http://psi.rechtspraak.nl/verwijzing</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Verwijzing naar</LabelEerdereAanleg>
+<LabelLatereAanleg>Na verwijzing door</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Vervallenverklaring</Naam>
+<Identifier>http://psi.rechtspraak.nl/vervallenverklaring</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Vervallenverklaard door</LabelEerdereAanleg>
+<LabelLatereAanleg>Vervallenverklaring van</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Sprongcassatie</Naam>
+<Identifier>http://psi.rechtspraak.nl/sprongcassatie</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Sprongcassatie</LabelEerdereAanleg>
+<LabelLatereAanleg>In sprongcassatie op</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Bekrachtiging/bevestiging</Naam>
+<Naam>(Gedeeltelijke) vernietiging en zelf afgedaan</Naam>
+<Naam>(Gedeeltelijke) vernietiging met terugwijzen</Naam>
+<Naam>Niet bevoegd</Naam>
+<Naam>Overig</Naam>
+<Naam>Meerdere afhandelingswijzen</Naam>
+<Naam>Onduidelijk</Naam>
+<Naam>(Gedeeltelijke) vernietiging met verwijzen</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Prejudiciële vraag</Naam>
+<Identifier>http://psi.rechtspraak.nl/prejudicieleVraag</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>BuitenlandseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Prejudiciële vraag aan</LabelEerdereAanleg>
+<LabelLatereAanleg>Prejudiciële beslissing op vraag van</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Inachtneming prejudiciële beslissing</Naam>
+<Identifier>
+http://psi.rechtspraak.nl/inachtnemingPrejudicieleBeslissing
+</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>EuropeseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>EuropeseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>EuropeseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCBb</InstantieLatereAanleg>
+<InstantieEerdereAanleg>EuropeseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeRvS</InstantieLatereAanleg>
+<InstantieEerdereAanleg>EuropeseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>EuropeseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>BuitenlandseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>EuropeseInstantie</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Nationale procedure voortgezet met</LabelEerdereAanleg>
+<LabelLatereAanleg>Na prejudiciële beslissing van</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Ontnemingsvordering</Naam>
+<Identifier>http://psi.rechtspraak.nl/ontnemingsvordering</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Ontnemingsprocedure</LabelEerdereAanleg>
+<LabelLatereAanleg>Veroordeling feit</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Overig</Naam>
+<Naam>Meerdere afhandelingswijzen</Naam>
+<Naam>Onduidelijk</Naam>
+<Naam>Toewijzing vordering</Naam>
+<Naam>Afwijzing vordering</Naam>
+<Naam>Gedeeltelijke toewijzing vordering</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Conclusie</Naam>
+<Identifier>http://psi.rechtspraak.nl/conclusie</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Parket</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCBb</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeRvS</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCBb</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeRvS</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCBb</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeRvS</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Arrest Hoge Raad</LabelEerdereAanleg>
+<LabelLatereAanleg>Conclusie</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Contrair</Naam>
+<Naam>Gevolgd</Naam>
+<Naam>Gedeeltelijk contrair</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Conclusie voor cassatie</Naam>
+<Identifier>http://psi.rechtspraak.nl/conclusieVoorCassatie</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Parket</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Conclusie in cassatie</LabelEerdereAanleg>
+<LabelLatereAanleg>Arrest gerechtshof</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Strekt tot vernietiging</Naam>
+<Naam>Strekt tot bevestiging</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Conclusie voor sprongcassatie</Naam>
+<Identifier>
+http://psi.rechtspraak.nl/conclusieVoorSprongcassatie
+</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Parket</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Conclusie in (sprong)cassatie</LabelEerdereAanleg>
+<LabelLatereAanleg>Rechtbankuitspraak waarvan sprongcassatie</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Strekt tot vernietiging</Naam>
+<Naam>Strekt tot bevestiging</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Herziening</Naam>
+<Identifier>http://psi.rechtspraak.nl/herziening</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHr</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHr</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeRvS</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Herziening</LabelEerdereAanleg>
+<LabelLatereAanleg>Aanvraag tot herziening van</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Overig</Naam>
+<Naam>Meerdere afhandelingswijzen</Naam>
+<Naam>Onduidelijk</Naam>
+<Naam>Toewijzing</Naam>
+<Naam>Afwijzing</Naam>
+<Naam>Gedeeltelijk toewijzing</Naam>
+<Naam>Gedeeltelijke afwijzing</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Rectificatiebesluit</Naam>
+<Identifier>http://psi.rechtspraak.nl/rectificatieBesluit</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Rectificatiebesluit</LabelEerdereAanleg>
+<LabelLatereAanleg>Te rectificeren uitspraak</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Definitief na rectificatie</Naam>
+<Identifier>http://psi.rechtspraak.nl/definitiefNaRectificatie</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Uitspraak na rectificatie</LabelEerdereAanleg>
+<LabelLatereAanleg>Grondslag voor rectificatie</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Oorspronkelijk besluit-definitief besluit</Naam>
+<Identifier>
+http://psi.rechtspraak.nl/oorspronkelijkBesluitDefinitiefBesluit
+</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeCRvB</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Gerectificeerde uitspraak</LabelEerdereAanleg>
+<LabelLatereAanleg>Oorspronkelijke uitspraak</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Nadere conclusie</Naam>
+<Identifier>http://psi.rechtspraak.nl/nadereConclusie</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Parket</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHR</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Parket</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Parket</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHR</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Parket</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Nadere conclusie</LabelEerdereAanleg>
+<LabelLatereAanleg>Arrest Hoge Raad voor nadere conclusie</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Herstel</Naam>
+<Identifier>http://psi.rechtspraak.nl/herstel</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHR</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHR</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>TypeHR</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHR</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Arrest</LabelEerdereAanleg>
+<LabelLatereAanleg>Herstelde arrest</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Herroeping</Naam>
+<Identifier>http://psi.rechtspraak.nl/Herroeping</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Herroeping</LabelEerdereAanleg>
+<LabelLatereAanleg>Uitspraak en herroepen uitspraak</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Toewijzing</Naam>
+<Naam>Afwijzing</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Inachtneming herstelarrest</Naam>
+<Identifier>
+http://psi.rechtspraak.nl/Inachtnemingherstelarrest
+</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Gerechtshof</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Gerechtshof</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Herstelarrest</LabelEerdereAanleg>
+<LabelLatereAanleg>Herstelde arrest</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Inachtneming hersteluitspraak</Naam>
+<Identifier>
+http://psi.rechtspraak.nl/Inachtneminghersteluitspraak
+</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>Rechtbank</InstantieLatereAanleg>
+<InstantieEerdereAanleg>Rechtbank</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Hersteluitspraak</LabelEerdereAanleg>
+<LabelLatereAanleg>Herstelde uitspraak</LabelLatereAanleg>
+<AfhandelingsWijze/>
+</FormeleRelatie>
+<FormeleRelatie>
+<Naam>Klacht bij EHRM</Naam>
+<Identifier>http://psi.rechtspraak.nl/klachtEHRM</Identifier>
+<Rolspelers>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeHR</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCBb</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeRvS</InstantieEerdereAanleg>
+</Rolspeler>
+<Rolspeler>
+<InstantieLatereAanleg>EuropeseInstantie</InstantieLatereAanleg>
+<InstantieEerdereAanleg>TypeCRvB</InstantieEerdereAanleg>
+</Rolspeler>
+</Rolspelers>
+<LabelEerdereAanleg>Klacht EHRM</LabelEerdereAanleg>
+<LabelLatereAanleg>Op klacht inzake</LabelLatereAanleg>
+<AfhandelingsWijze>
+<Naam>Niet ontvankelijk</Naam>
+<Naam>Meerdere afhandelingswijzen</Naam>
+<Naam>Gegrondverklaring</Naam>
+<Naam>Ongegrondverklaring</Naam>
+</AfhandelingsWijze>
+</FormeleRelatie>
+</FormeleRelaties>
