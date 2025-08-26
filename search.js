@@ -51,11 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const [instantiesXml, rechtsgebiedenXml, proceduresXml] = await Promise.all([
-                fetch('/api-data/Instanties.xml').then(res => res.text()),
-                fetch('/api-data/Rechtsgebieden.xml').then(res => res.text()),
-                fetch('/api-data/Proceduresoorten.xml').then(res => res.text())
+            fetch('/public/api-data/Instanties.xml').then(res => res.text()),
+            fetch('/public/api-data/Rechtsgebieden.xml').then(res => res.text()),
+            fetch('/public/api-data/Proceduresoorten.xml').then(res => res.text())
             ]);
-
             const parser = new DOMParser();
 
             // Verwerk Instanties
@@ -173,8 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Vertaal 'Type'
         const docType = formData.get('type');
-        if (docType === 'Uitspraak') params.append('type', 'http://psi.rechtspraak.nl/rechtsgebied#uitspraak');
-        if (docType === 'Conclusie') params.append('type', 'http://psi.rechtspraak.nl/rechtsgebied#conclusie');
+        if (docType === 'Uitspraak' || docType === 'Conclusie') {
+            params.append('type', docType);
+        }
         
         // Vertaal 'Instantie'
         const creatorName = formData.get('creator').trim();
