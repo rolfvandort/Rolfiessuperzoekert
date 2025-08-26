@@ -81,14 +81,16 @@
             transform: rotate(90deg);
         }
         
-        /* Visuele verbetering voor de filter checkboxes */
         .filter-checkbox-container {
-            max-height: 200px; /* Bepaal een maximale hoogte */
-            overflow-y: auto; /* Voeg een scrollbar toe als de inhoud te lang is */
+            max-height: 200px;
+            overflow-y: auto;
             padding: 0.5rem;
             border: 1px solid #e5e7eb;
             border-radius: 0.375rem;
             background-color: #f9fafb;
+        }
+        .filter-checkbox-container ul {
+            padding-left: 1rem;
         }
 
         #jurisprudentie-loader, #loading-indicator div {
@@ -216,135 +218,143 @@
                 </main>
             </div>
         </div>
-    </div>
 
-    <div id="prikbord-page" class="hidden"></div>
-    <div id="derdengeld-app-container" class="hidden"></div>
-    <div id="deadlines-page" class="hidden"></div>
-    <div id="docs-page" class="hidden"></div>
-    <div id="schadestaat-page" class="hidden"></div>
-    
-    <div id="jurisprudentie-page" class="hidden">
-        <div class="flex flex-col h-screen bg-subtle">
-            <header class="bg-white shadow-md w-full p-4 flex justify-between items-center z-10 shrink-0">
-                <div class="flex items-center">
-                    <img src="https://i.postimg.cc/B690tTpb/temp-Image8-Bf-XYq.avif" alt="Van Dort Letselschade Logo" class="h-12 mr-4">
-                    <div>
-                        <h1 class="text-2xl font-bold text-primary">Rolfies Superzoeker</h1>
-                        <p class="text-sm text-gray-500">Live Jurisprudentie Navigator</p>
-                    </div>
-                </div>
-                <button class="btn-back-to-hub text-sm font-medium text-gray-600 hover:text-primary">&larr; Terug naar Hub</button>
-            </header>
-
-            <main class="flex-grow grid grid-cols-12 gap-4 p-4 overflow-hidden">
-
-                <aside class="col-span-12 lg:col-span-3 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
-                    <div class="p-4 border-b">
-                        <h2 class="text-lg font-semibold text-primary">Zoekparameters</h2>
-                    </div>
-                    <form id="jurisprudentie-form" class="p-4 space-y-4 overflow-y-auto flex-grow">
+        <div id="prikbord-page" class="hidden"></div>
+        <div id="derdengeld-app-container" class="hidden"></div>
+        <div id="deadlines-page" class="hidden"></div>
+        <div id="docs-page" class="hidden"></div>
+        <div id="schadestaat-page" class="hidden"></div>
+        
+        <div id="jurisprudentie-page" class="hidden">
+            <div class="flex flex-col h-screen bg-subtle">
+                <header class="bg-white shadow-md w-full p-4 flex justify-between items-center z-10 shrink-0">
+                    <div class="flex items-center">
+                        <img src="https://i.postimg.cc/B690tTpb/temp-Image8-Bf-XYq.avif" alt="Van Dort Letselschade Logo" class="h-12 mr-4">
                         <div>
-                            <label for="doc-type" class="block text-sm font-medium text-gray-700">Type document</label>
-                            <select id="doc-type" name="doc-type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
-                                <option>Uitspraak</option>
-                                <option>Conclusie</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Uitspraakdatum (periode)</label>
-                            <div class="mt-1 grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="date-from" class="text-xs text-gray-500">Vanaf:</label>
-                                    <input type="date" id="date-from" name="date-from" class="w-full rounded-md border-gray-300 text-sm">
-                                </div>
-                                <div>
-                                    <label for="date-to" class="text-xs text-gray-500">Tot:</label>
-                                    <input type="date" id="date-to" name="date-to" class="w-full rounded-md border-gray-300 text-sm">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Wijzigingsdatum (periode)</label>
-                            <div class="mt-1 grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="modified-from" class="text-xs text-gray-500">Vanaf:</label>
-                                    <input type="datetime-local" id="modified-from" name="modified-from" class="w-full rounded-md border-gray-300 text-sm">
-                                </div>
-                                <div>
-                                    <label for="modified-to" class="text-xs text-gray-500">Tot:</label>
-                                    <input type="datetime-local" id="modified-to" name="modified-to" class="w-full rounded-md border-gray-300 text-sm">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="subject" class="block text-sm font-medium text-gray-700">Rechtsgebied</label>
-                            <select id="subject" name="subject" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
-                                <option value="">-- Alle --</option>
-                                <option>Civiel recht</option>
-                                <option>Strafrecht</option>
-                                <option>Bestuursrecht</option>
-                                <option>Internationaal publiekrecht</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="creator" class="block text-sm font-medium text-gray-700">Instantie (afkorting)</label>
-                            <input type="text" id="creator" name="creator" class="mt-1 w-full rounded-md border-gray-300 text-sm" placeholder="bijv. HR, RBNNE">
-                        </div>
-
-                        <div>
-                            <label for="max-results" class="block text-sm font-medium text-gray-700">Maximaal aantal resultaten</label>
-                            <input type="number" id="max-results" name="max-results" value="50" max="1000" min="1" class="mt-1 w-full rounded-md border-gray-300 text-sm">
-                        </div>
-
-                        <div>
-                            <label for="sort-order" class="block text-sm font-medium text-gray-700">Sortering</label>
-                            <select id="sort-order" name="sort-order" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
-                                <option value="ASC">Oplopend</option>
-                                <option value="DESC" selected>Aflopend</option>
-                            </select>
-                        </div>
-                    </form>
-                    <div class="mt-auto p-4 border-t bg-gray-50">
-                        <button type="submit" form="jurisprudentie-form" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg shadow-sm">Zoeken</button>
-                    </div>
-                </aside>
-
-                <section class="col-span-12 lg:col-span-9 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
-                    <div class="p-4 border-b flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-primary">Resultaten</h2>
-                        <span id="results-summary" class="text-sm text-gray-500"></span>
-                    </div>
-                    <div class="flex-grow relative">
-                        <div id="results-container" class="absolute inset-0 overflow-y-auto p-2 space-y-2">
-                            <div id="error-message" class="flex items-center justify-center h-full text-center p-10 text-gray-500">
-                                Gebruik het formulier om te zoeken.
-                            </div>
-                        </div>
-                        <div id="loading-indicator" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                            <div></div>
+                            <h1 class="text-2xl font-bold text-primary">Rolfies Superzoeker</h1>
+                            <p class="text-sm text-gray-500">Live Jurisprudentie Navigator</p>
                         </div>
                     </div>
-                    <div id="jurisprudentie-pagination" class="p-2 border-t flex justify-between items-center text-sm" style="visibility: hidden;">
-                        <button id="prev-page" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">&larr; Vorige</button>
-                        <span id="pagination-info" class="text-gray-600"></span>
-                        <button id="next-page" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Volgende &rarr;</button>
-                    </div>
-                </section>
-            </main>
-        </div>
-        <div id="content-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]">
-                <header class="p-4 border-b flex justify-between items-center">
-                    <h2 id="modal-title" class="text-xl font-semibold text-primary">Uitspraak Details</h2>
-                    <button id="modal-close-btn" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+                    <button class="btn-back-to-hub text-sm font-medium text-gray-600 hover:text-primary">&larr; Terug naar Hub</button>
                 </header>
-                <main id="modal-content" class="p-6 flex-grow overflow-y-auto prose max-w-none">
-                    </main>
+
+                <main class="flex-grow grid grid-cols-12 gap-4 p-4 overflow-hidden">
+
+                    <aside class="col-span-12 lg:col-span-3 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+                        <div class="p-4 border-b flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">Zoekparameters</h2>
+                            <span id="filters-loading-indicator" class="text-xs text-gray-500">Filters laden...</span>
+                        </div>
+                        <form id="jurisprudentie-form" class="p-4 space-y-4 overflow-y-auto flex-grow">
+                            <div>
+                                <label for="query-text" class="block text-sm font-medium text-gray-700">Trefwoorden (in titel/samenvatting)</label>
+                                <input type="text" id="query-text" name="q" class="mt-1 w-full rounded-md border-gray-300 text-sm" placeholder="bijv. whiplash, smartengeld">
+                            </div>
+
+                            <div>
+                                <label for="query-id" class="block text-sm font-medium text-gray-700">Zaaknummer (ECLI of LJN)</label>
+                                <input type="text" id="query-id" name="id" class="mt-1 w-full rounded-md border-gray-300 text-sm" placeholder="bijv. ECLI:NL:HR:2023:1234">
+                            </div>
+
+                            <div>
+                                <label for="doc-type" class="block text-sm font-medium text-gray-700">Type document</label>
+                                <select id="doc-type" name="type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                    <option value="">-- Alle --</option>
+                                    <option value="Uitspraak">Uitspraak</option>
+                                    <option value="Conclusie">Conclusie</option>
+                                </select>
+                            </div>
+
+                            <details class="space-y-4 pt-2">
+                                <summary class="font-medium text-gray-700 text-sm">Geavanceerd zoeken</summary>
+                                <div class="pl-2 border-l-2 border-gray-200 space-y-4">
+                                    <div>
+                                        <label for="creator" class="block text-sm font-medium text-gray-700">Instantie</label>
+                                        <input type="text" id="creator" name="creator" list="instanties-datalist" class="mt-1 w-full rounded-md border-gray-300 text-sm" placeholder="Typ naam of afkorting...">
+                                        <datalist id="instanties-datalist"></datalist>
+                                    </div>
+                                    <div>
+                                        <label for="subject-container" class="block text-sm font-medium text-gray-700">Rechtsgebied</label>
+                                        <div id="subject-container" class="mt-1 filter-checkbox-container no-scrollbar">Laden...</div>
+                                    </div>
+                                    <div>
+                                        <label for="procedure-container" class="block text-sm font-medium text-gray-700">Procedure</label>
+                                        <div id="procedure-container" class="mt-1 filter-checkbox-container no-scrollbar">Laden...</div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Uitspraakdatum</label>
+                                        <div class="mt-1 grid grid-cols-2 gap-4">
+                                            <div><label for="date-from" class="text-xs text-gray-500">Vanaf:</label><input type="date" id="date-from" name="date-from" class="w-full rounded-md border-gray-300 text-sm"></div>
+                                            <div><label for="date-to" class="text-xs text-gray-500">Tot:</label><input type="date" id="date-to" name="date-to" class="w-full rounded-md border-gray-300 text-sm"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Publicatiedatum</label>
+                                        <div class="mt-1 grid grid-cols-2 gap-4">
+                                            <div><label for="issued-from" class="text-xs text-gray-500">Vanaf:</label><input type="date" id="issued-from" name="issued-from" class="w-full rounded-md border-gray-300 text-sm"></div>
+                                            <div><label for="issued-to" class="text-xs text-gray-500">Tot:</label><input type="date" id="issued-to" name="issued-to" class="w-full rounded-md border-gray-300 text-sm"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <label for="max-results" class="block text-sm font-medium text-gray-700">Resultaten per pagina</label>
+                                <select id="max-results" name="max" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                    <option>10</option>
+                                    <option>25</option>
+                                    <option selected>50</option>
+                                    <option>100</option>
+                                    <option>250</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="sort-order" class="block text-sm font-medium text-gray-700">Sortering op datum</label>
+                                <select id="sort-order" name="return-sort" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                    <option value="DESC" selected>Nieuwste eerst (aflopend)</option>
+                                    <option value="ASC">Oudste eerst (oplopend)</option>
+                                </select>
+                            </div>
+                            </form>
+                        <div class="mt-auto p-4 border-t bg-gray-50 flex gap-2">
+                            <button type="button" id="jurisprudentie-reset-btn" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-lg shadow-sm">Reset</button>
+                            <button type="submit" form="jurisprudentie-form" class="w-2/3 bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg shadow-sm">Zoeken</button>
+                        </div>
+                    </aside>
+
+                    <section class="col-span-12 lg:col-span-9 bg-white rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+                        <div class="p-4 border-b flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">Resultaten</h2>
+                            <span id="results-summary" class="text-sm text-gray-500"></span>
+                        </div>
+                        <div class="flex-grow relative">
+                            <div id="results-container" class="absolute inset-0 overflow-y-auto p-2 space-y-2">
+                                <div id="error-message" class="flex items-center justify-center h-full text-center p-10 text-gray-500">
+                                    Gebruik het formulier om te zoeken.
+                                </div>
+                            </div>
+                            <div id="loading-indicator" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                                <div></div>
+                            </div>
+                        </div>
+                        <div id="jurisprudentie-pagination" class="p-2 border-t flex justify-between items-center text-sm" style="visibility: hidden;">
+                            <button id="prev-page" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">&larr; Vorige</button>
+                            <span id="pagination-info" class="text-gray-600"></span>
+                            <button id="next-page" class="px-4 py-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Volgende &rarr;</button>
+                        </div>
+                    </section>
+                </main>
+            </div>
+            <div id="content-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]">
+                    <header class="p-4 border-b flex justify-between items-center">
+                        <h2 id="modal-title" class="text-xl font-semibold text-primary">Uitspraak Details</h2>
+                        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+                    </header>
+                    <main id="modal-content" class="p-6 flex-grow overflow-y-auto prose max-w-none">
+                        </main>
+                </div>
             </div>
         </div>
     </div>
@@ -1201,8 +1211,6 @@
             if (e.target.id === 'btn-new-schadestaat') showPage('schadestaat-page');
             const schadestaatItem = e.target.closest('.schadestaat-widget-item');
             if (schadestaatItem) showPage('schadestaat-page', { id: schadestaatItem.dataset.id });
-
-            // De 'btn-clear-storage' logica is hier nu volledig verwijderd.
         });
 
         document.body.addEventListener('submit', (e) => {
@@ -1231,7 +1239,7 @@
         setTimeout(() => el.classList.add('hidden'), 3000);
     }
     
-    // --- DERDENGELD MODULE ---
+    // --- DERDENGELD MODULE (onveranderd) ---
     function initializeDerdengeldApp() {
         const container = document.getElementById('derdengeld-app-container');
         container.innerHTML = `
@@ -1330,16 +1338,16 @@
             const otherTasksContainer = document.getElementById('derdengeld-other-tasks-container');
             const activityContainer = document.getElementById('derdengeld-activity-feed-container');
             const approvalsContainer = document.getElementById('derdengeld-my-approvals-container');
-    
+
             myTasksContainer.innerHTML = ''; otherTasksContainer.innerHTML = ''; activityContainer.innerHTML = ''; approvalsContainer.innerHTML = '';
-    
+
             const allTasks = derdengeld_localDatabase.forms.flatMap(form => (form.taken || []).map(taak => ({ ...taak, formId: form.id, formInzake: form.inzake, aangemaaktDoor: form.aangemaaktDoor, totaalbedrag: form.bedrag })));
             const myOpenTasks = allTasks.filter(taak => taak.collega === derdengeld_currentUserDisplayName && taak.status === 'open');
             const otherOpenTasks = allTasks.filter(taak => taak.collega !== derdengeld_currentUserDisplayName && taak.status === 'open');
             
             myTasksContainer.innerHTML = myOpenTasks.length ? myOpenTasks.map(t => derdengeld_createTaskCard(t, true)).join('') : '<p class="text-sm text-gray-500">Je hebt geen openstaande taken.</p>';
             otherTasksContainer.innerHTML = otherOpenTasks.length ? otherOpenTasks.map(t => derdengeld_createTaskCard(t, false)).join('') : '<p class="text-sm text-gray-500">Er zijn geen andere openstaande taken.</p>';
-    
+
             const takeoverRequests = derdengeld_localDatabase.takeoverRequests.filter(req => {
                 const form = derdengeld_localDatabase.forms.find(f => f.id === req.formId);
                 return form && form.aangemaaktDoor === derdengeld_currentUserDisplayName && req.status === 'pending';
@@ -1348,7 +1356,7 @@
                 const form = derdengeld_localDatabase.forms.find(f => f.id === req.formId);
                 if (form) approvalsContainer.innerHTML += derdengeld_createTakeoverApprovalCard(req, form.inzake);
             });
-    
+
             if (derdengeld_currentUserDisplayName === 'Ine van Dort') {
                 const reopenRequests = derdengeld_localDatabase.reopenRequests.filter(req => req.status === 'pending');
                 reopenRequests.forEach(req => {
@@ -1356,7 +1364,7 @@
                     if (form) approvalsContainer.innerHTML += derdengeld_createReopenApprovalCard(req, form.inzake);
                 });
             }
-    
+
             if (approvalsContainer.innerHTML.trim() === '') approvalsContainer.innerHTML = '<p class="text-sm text-gray-500">Geen openstaande verzoeken.</p>';
             
             activityContainer.innerHTML = derdengeld_localDatabase.activityLog.length ? [...derdengeld_localDatabase.activityLog].reverse().slice(0, 10).map(derdengeld_createActivityItem).join('') : '<p class="text-sm text-gray-500">Nog geen activiteit.</p>';
@@ -1708,7 +1716,7 @@
         derdengeld_init();
     }
 
-    // --- SCHADESTAAT MODULE ---
+    // --- SCHADESTAAT MODULE (onveranderd) ---
     function initializeSchadestaatApp() {
         const container = document.getElementById('schadestaat-page');
         container.innerHTML = `
@@ -1793,10 +1801,10 @@
                                     </section>
                                 </div>
                             </aside>
-                       </div>
-                      <div id="schade-print-output" class="print-only p-8"></div>
-                    </div>
-                `;
+                          </div>
+                          <div id="schade-print-output" class="print-only p-8"></div>
+                        </div>
+                    `;
 
         const schadepostenLijst = document.getElementById('schade-schadeposten-lijst');
         let validationTimer = null;
@@ -2047,7 +2055,7 @@
         getEl('print-export').addEventListener('click', () => showNotification("Print functie is klaar voor gebruik.", "info"));
     }
 
-         </script>
+    </script>
 <script src="search.js" defer></script>
 </body>
 </html>
