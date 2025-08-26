@@ -13,9 +13,8 @@ exports.handler = async (event, context) => {
             // Split waarden op komma, voor het geval de frontend meerdere selecties zo doorgeeft
             originalParams[key].split(',').forEach(value => {
                 if (value) { // Zorg ervoor dat lege strings niet worden toegevoegd
-                    // CORRECTIE: Hernoem de 'subject' parameter naar 'rechtsgebied'
-                    const correctKey = (key === 'subject') ? 'rechtsgebied' : key;
-                    filteredParams.append(correctKey, value);
+                    // De incorrecte hernoeming is verwijderd. De 'key' wordt direct gebruikt.
+                    filteredParams.append(key, value);
                 }
             });
         }
