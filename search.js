@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Vereist formaat
-        params.append('return', 'atom');
+       
 
         return `${API_BACKEND_URL}?${params.toString()}`;
     }
