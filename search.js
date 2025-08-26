@@ -1,3 +1,4 @@
+
 /**
  * @file search.js
  * @description Handles all client-side logic for the "Superzoeker".
@@ -12,7 +13,6 @@ window.rechtsspraakData = {
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
-    const jurisprudentiePage = document.getElementById('jurisprudentie-page');
     const searchForm = document.getElementById('jurisprudentie-form');
     const searchButton = document.querySelector('button[form="jurisprudentie-form"]');
     const resetButton = document.getElementById('jurisprudentie-reset-btn');
@@ -198,16 +198,24 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(cb => cb.dataset.identifier).join(',');
         if (selectedProcedures) params.append('procedure', selectedProcedures);
             
-        // Datums
-        if (formData.get('date-from')) params.append('date-start', formData.get('date-from'));
-        if (formData.get('date-to')) params.append('date-end', formData.get('date-to'));
-        if (formData.get('issued-from')) params.append('issued-start', formData.get('issued-from'));
-        if (formData.get('issued-to')) params.append('issued-end', formData.get('issued-to'));
+        // Datums (Uitspraakdatum -> 'date')
+        const dateFrom = formData.get('date-from');
+        const dateTo = formData.get('date-to');
+        if (dateFrom) params.append('date', dateFrom);
+        if (dateTo) params.append('date', dateTo);
+
+        // Datums (Publicatiedatum -> 'modified')
+        const modifiedFrom = formData.get('modified-from');
+        const modifiedTo = formData.get('modified-to');
+        if (modifiedFrom) params.append('modified', modifiedFrom);
+        if (modifiedTo) params.append('modified', modifiedTo);
         
         // Paginatie en sortering
         params.append('max', currentMax);
         params.append('from', currentPageOffset);
-        if (formData.get('return-sort') === 'ASC') params.append('sort', 'date');
+        if (formData.get('return-sort') === 'DESC') {
+            params.append('sort', 'DESC');
+        }
 
         // Vereist formaat
         params.append('return', 'atom');
@@ -262,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorMessageDiv.textContent = 'Geen resultaten gevonden voor deze zoekopdracht.';
             errorMessageDiv.classList.remove('hidden');
             resultsSummarySpan.textContent = 'Totaal: 0';
+            paginationContainer.style.visibility = 'hidden'; // Verberg paginatie expliciet
             return;
         }
 
@@ -345,9 +354,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const contentElement = xmlDoc.querySelector('uitspraak, conclusie');
             if (contentElement) {
-                // De innerHTML van een XML-element kan direct worden gebruikt omdat het al een gestructureerde opmaak bevat.
-                // Moderne browsers saniteren dit tot op zekere hoogte bij het renderen.
-                modalContent.innerHTML = new XMLSerializer().serializeToString(contentElement);
+                // Veilige methode om XML weer te geven: plaats de rauwe XML-string als tekst
+                // in een <pre><code> blok. Dit voorkomt XSS-aanvallen.
+                const serializer = new XMLSerializer();
+                const serializedXml = serializer.serializeToString(contentElement);
+                
+                modalContent.innerHTML = ''; // Leeg de loader
+                const pre = document.createElement('pre');
+                const code = document.createElement('code');
+                code.textContent = serializedXml; // Zet de XML als pure tekst
+                pre.appendChild(code);
+                modalContent.appendChild(pre);
             } else {
                  modalContent.innerHTML = '<p>De volledige inhoud kon niet worden gevonden in het ontvangen document.</p>';
             }
@@ -365,9 +382,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     resetButton.addEventListener('click', () => {
         searchForm.reset();
-        document.querySelectorAll('.filter-checkbox-container input').forEach(cb => cb.checked = false);
-        // We voeren een nieuwe, lege zoekopdracht uit om de resultaten te wissen
-        performSearch(false); 
+        // Gebruik een robuustere selector om alle checkboxes te vinden en te deselecteren.
+        document.querySelectorAll('#subject-container input[type="checkbox"], #procedure-container input[type="checkbox"]').forEach(cb => cb.checked = false);
+        
+        // Wis de resultaten en herstel de beginstaat zonder een nieuwe zoekopdracht.
+        resultsContainer.innerHTML = '';
+        errorMessageDiv.textContent = 'Gebruik het formulier om te zoeken.';
+        errorMessageDiv.classList.remove('hidden');
+        resultsSummarySpan.textContent = '';
+        paginationContainer.style.visibility = 'hidden';
+        totalResults = 0;
+        currentPageOffset = 0;
     });
 
     prevPageBtn.addEventListener('click', () => {
@@ -397,8 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === contentModal) contentModal.classList.add('hidden');
     });
     
-    // Initialiseer de filters alleen wanneer de jurisprudentiepagina zichtbaar wordt.
-    // Dit kan via een MutationObserver of een simpele check in de showPage functie.
-    // Voor nu roepen we het direct aan.
-    initializeSuperZoeker();
+    // Initialiseer de filters.
+    initializeSuperZoeker()
 });
