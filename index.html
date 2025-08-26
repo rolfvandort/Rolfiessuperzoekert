@@ -291,8 +291,8 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Publicatiedatum</label>
                                         <div class="mt-1 grid grid-cols-2 gap-4">
-                                            <div><label for="issued-from" class="text-xs text-gray-500">Vanaf:</label><input type="date" id="issued-from" name="issued-from" class="w-full rounded-md border-gray-300 text-sm"></div>
-                                            <div><label for="issued-to" class="text-xs text-gray-500">Tot:</label><input type="date" id="issued-to" name="issued-to" class="w-full rounded-md border-gray-300 text-sm"></div>
+                                            <div><label for="issued-from" class="text-xs text-gray-500">Vanaf:</label><input type="date" id="issued-from" name="modified-from" class="w-full rounded-md border-gray-300 text-sm"></div>
+                                            <div><label for="issued-to" class="text-xs text-gray-500">Tot:</label><input type="date" id="issued-to" name="modified-to" class="w-full rounded-md border-gray-300 text-sm"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -310,7 +310,7 @@
                             </div>
                             
                             <div>
-                                <label for="sort-order" class="block text-sm font-medium text-gray-700">Sortering op datum</label>
+                                <label for="sort-order" class="block text-sm font-medium text-gray-700">Sortering op publicatiedatum</label>
                                 <select id="sort-order" name="return-sort" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
                                     <option value="DESC" selected>Nieuwste eerst (aflopend)</option>
                                     <option value="ASC">Oudste eerst (oplopend)</option>
@@ -353,7 +353,7 @@
                         <button id="modal-close-btn" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
                     </header>
                     <main id="modal-content" class="p-6 flex-grow overflow-y-auto prose max-w-none">
-                        </main>
+                    </main>
                 </div>
             </div>
         </div>
@@ -1310,7 +1310,7 @@
                 <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg"><header class="p-4 border-b"><h2 class="text-xl font-semibold text-primary">Taak Toewijzen</h2></header><main class="p-6 space-y-4"><div><label for="derdengeld-modal-collega" class="block text-sm font-medium text-gray-700">Wijs toe aan collega:</label><select id="derdengeld-modal-collega" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></select></div><div><label for="derdengeld-modal-taak-type" class="block text-sm font-medium text-gray-700">Type taak:</label><select id="derdengeld-modal-taak-type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"><option value="verantwoording">Verantwoording Invullen</option><option value="doorbetaling">Doorbetaling Voorbereiden</option></select></div></main><footer class="bg-gray-50 p-4 flex justify-end items-center gap-4 rounded-b-lg"><button type="button" id="derdengeld-btn-close-modal" class="text-sm font-medium text-gray-600 hover:text-gray-900">Annuleren</button><button type="button" id="derdengeld-btn-add-task" class="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-5 rounded-lg shadow-sm">Taak Toewijzen</button></footer></div>
             </div>
         `;
-    
+        
         // Lokale staat voor de Derdengeld-module
         const derdengeld_localDatabase = {
             forms: [],
@@ -1719,91 +1719,91 @@
     function initializeSchadestaatApp() {
         const container = document.getElementById('schadestaat-page');
         container.innerHTML = `
-                <div class="flex flex-col min-h-screen">
-                    <header class="bg-white shadow-md w-full p-4 flex justify-between items-center z-10">
-                            <div class="flex items-center">
-                                <img src="https://i.postimg.cc/B690tTpb/temp-Image8-Bf-XYq.avif" alt="Van Dort Letselschade Logo" class="h-12 mr-4">
-                                <div>
-                                    <h1 id="schadestaat-title" class="text-2xl font-bold text-primary">Digitale Schadestaat</h1>
-                                    <p class="text-sm text-gray-500">Dossierbeheer</p>
-                                </div>
-                            </div>
-                            <button class="btn-back-to-hub text-sm font-medium text-gray-600 hover:text-primary">&larr; Terug naar Hub</button>
-                       </header>
-                      <div class="flex flex-col lg:flex-row">
-                            <main class="w-full lg:w-2/3 p-4 sm:p-6 lg:p-8">
-                                <section id="schade-validation-dashboard" class="validation-panel p-4 rounded-lg shadow-md mb-6 hidden">
-                                    <h3 class="text-lg font-semibold mb-3 text-red-800">⚠️ Validatie Waarschuwingen</h3>
-                                    <div id="schade-validation-items" class="space-y-2"></div>
-                                </section>
-                                <section class="bg-white p-6 rounded-lg shadow-md">
-                                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                        <h2 class="text-xl font-semibold text-primary">Schadeposten</h2>
-                                        <button id="schade-add-schadepost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark">Nieuwe Hoofdpost</button>
+                        <div class="flex flex-col min-h-screen">
+                            <header class="bg-white shadow-md w-full p-4 flex justify-between items-center z-10">
+                                    <div class="flex items-center">
+                                        <img src="https://i.postimg.cc/B690tTpb/temp-Image8-Bf-XYq.avif" alt="Van Dort Letselschade Logo" class="h-12 mr-4">
+                                        <div>
+                                            <h1 id="schadestaat-title" class="text-2xl font-bold text-primary">Digitale Schadestaat</h1>
+                                            <p class="text-sm text-gray-500">Dossierbeheer</p>
+                                        </div>
                                     </div>
-                                    <div id="schade-schadeposten-lijst" class="space-y-6"></div>
-                                </section>
-                            </main>
-                            <aside class="w-full lg:w-1/3 bg-gray-50 p-4 sm:p-6 lg:p-8 border-l border-gray-200">
-                                <div class="sticky top-8 space-y-6">
-                                    <section id="schade-dossier-info" class="bg-white p-6 rounded-lg shadow-md">
-                                        <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Algemene Gegevens</h2>
-                                        <div class="space-y-4">
-                                            <div><label for="schade-dossiernummer" class="block text-sm font-medium text-gray-700">Dossiernummer Van Dort</label><input type="text" id="schade-dossiernummer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                            <div><label for="schade-contactpersoon" class="block text-sm font-medium text-gray-700">Contactpersoon intern</label><input type="text" id="schade-contactpersoon" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                            <div><label for="schade-benadeelde" class="block text-sm font-medium text-gray-700">Cliënt (benadeelde)</label><input type="text" id="schade-benadeelde" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                            <div><label for="schade-geboortedatum" class="block text-sm font-medium text-gray-700">Geboortedatum</label><input type="date" id="schade-geboortedatum" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                            <div><label for="schade-schadedatum" class="block text-sm font-medium text-gray-700">Schadedatum</label><input type="date" id="schade-schadedatum" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                        </div>
-                                    </section>
-                                    <section id="schade-wederpartij-info" class="bg-white p-6 rounded-lg shadow-md">
-                                        <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Gegevens Wederpartij</h2>
-                                        <div class="space-y-4">
-                                            <div><label for="schade-wederpartij-verzekeraar" class="block text-sm font-medium text-gray-700">Verzekeraar</label><input type="text" id="schade-wederpartij-verzekeraar" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                            <div><label for="schade-wederpartij-contactpersoon" class="block text-sm font-medium text-gray-700">Contactpersoon</label><input type="text" id="schade-wederpartij-contactpersoon" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                            <div><label for="schade-wederpartij-schadenummer" class="block text-sm font-medium text-gray-700">Schadenummer</label><input type="text" id="schade-wederpartij-schadenummer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
-                                        </div>
-                                    </section>
-                                    <section class="bg-white p-6 rounded-lg shadow-md">
-                                        <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Rente Instellingen</h2>
-                                        <div class="space-y-4">
-                                            <div class="flex justify-between items-center">
-                                                <label for="schade-rente-percentage" class="font-medium text-sm">Wettelijke rente %:</label>
-                                                <div class="relative w-24">
-                                                    <input type="number" id="schade-rente-percentage" value="7.00" min="0" max="20" step="0.25" class="block w-full rounded-md border-gray-300 shadow-sm text-right pr-7 sm:text-sm">
-                                                    <div class="pointer-events-none absolute inset-y-0 right-0 pr-2 flex items-center"><span class="text-sm">%</span></div>
+                                    <button class="btn-back-to-hub text-sm font-medium text-gray-600 hover:text-primary">&larr; Terug naar Hub</button>
+                               </header>
+                                <div class="flex flex-col lg:flex-row">
+                                    <main class="w-full lg:w-2/3 p-4 sm:p-6 lg:p-8">
+                                        <section id="schade-validation-dashboard" class="validation-panel p-4 rounded-lg shadow-md mb-6 hidden">
+                                            <h3 class="text-lg font-semibold mb-3 text-red-800">⚠️ Validatie Waarschuwingen</h3>
+                                            <div id="schade-validation-items" class="space-y-2"></div>
+                                        </section>
+                                        <section class="bg-white p-6 rounded-lg shadow-md">
+                                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                                <h2 class="text-xl font-semibold text-primary">Schadeposten</h2>
+                                                <button id="schade-add-schadepost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark">Nieuwe Hoofdpost</button>
+                                            </div>
+                                            <div id="schade-schadeposten-lijst" class="space-y-6"></div>
+                                        </section>
+                                    </main>
+                                    <aside class="w-full lg:w-1/3 bg-gray-50 p-4 sm:p-6 lg:p-8 border-l border-gray-200">
+                                        <div class="sticky top-8 space-y-6">
+                                            <section id="schade-dossier-info" class="bg-white p-6 rounded-lg shadow-md">
+                                                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Algemene Gegevens</h2>
+                                                <div class="space-y-4">
+                                                    <div><label for="schade-dossiernummer" class="block text-sm font-medium text-gray-700">Dossiernummer Van Dort</label><input type="text" id="schade-dossiernummer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
+                                                    <div><label for="schade-contactpersoon" class="block text-sm font-medium text-gray-700">Contactpersoon intern</label><input type="text" id="schade-contactpersoon" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
+                                                    <div><label for="schade-benadeelde" class="block text-sm font-medium text-gray-700">Cliënt (benadeelde)</label><input type="text" id="schade-benadeelde" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
+                                                    <div><label for="schade-geboortedatum" class="block text-sm font-medium text-gray-700">Geboortedatum</label><input type="date" id="schade-geboortedatum" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
+                                                    <div><label for="schade-schadedatum" class="block text-sm font-medium text-gray-700">Schadedatum</label><input type="date" id="schade-schadedatum" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
                                                 </div>
-                                            </div>
-                                            <button id="schade-herbereken-rente" class="w-full bg-accent text-white px-4 py-2 rounded-md font-medium hover:bg-opacity-90">Herbereken Automatische Rente</button>
+                                            </section>
+                                            <section id="schade-wederpartij-info" class="bg-white p-6 rounded-lg shadow-md">
+                                                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Gegevens Wederpartij</h2>
+                                                <div class="space-y-4">
+                                                    <div><label for="schade-wederpartij-verzekeraar" class="block text-sm font-medium text-gray-700">Verzekeraar</label><input type="text" id="schade-wederpartij-verzekeraar" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
+                                                    <div><label for="schade-wederpartij-contactpersoon" class="block text-sm font-medium text-gray-700">Contactpersoon</label><input type="text" id="schade-wederpartij-contactpersoon" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
+                                                    <div><label for="schade-wederpartij-schadenummer" class="block text-sm font-medium text-gray-700">Schadenummer</label><input type="text" id="schade-wederpartij-schadenummer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></div>
+                                                </div>
+                                            </section>
+                                            <section class="bg-white p-6 rounded-lg shadow-md">
+                                                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Rente Instellingen</h2>
+                                                <div class="space-y-4">
+                                                    <div class="flex justify-between items-center">
+                                                        <label for="schade-rente-percentage" class="font-medium text-sm">Wettelijke rente %:</label>
+                                                        <div class="relative w-24">
+                                                            <input type="number" id="schade-rente-percentage" value="7.00" min="0" max="20" step="0.25" class="block w-full rounded-md border-gray-300 shadow-sm text-right pr-7 sm:text-sm">
+                                                            <div class="pointer-events-none absolute inset-y-0 right-0 pr-2 flex items-center"><span class="text-sm">%</span></div>
+                                                        </div>
+                                                    </div>
+                                                    <button id="schade-herbereken-rente" class="w-full bg-accent text-white px-4 py-2 rounded-md font-medium hover:bg-opacity-90">Herbereken Automatische Rente</button>
+                                                </div>
+                                            </section>
+                                            <section class="bg-white p-6 rounded-lg shadow-md">
+                                                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Totaaloverzicht</h2>
+                                                <div class="space-y-3 text-sm">
+                                                    <div class="flex justify-between items-center"><span class="font-medium">Totaal schadeposten:</span><span id="schade-totaal-schade" class="font-semibold text-base">€ 0,00</span></div>
+                                                    <div class="flex justify-between items-center"><label for="schade-wettelijke-rente" class="font-medium">Wettelijke Rente (auto):</label><div class="relative w-32"><div class="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center"><span class="text-gray-500">€</span></div><input type="number" id="schade-wettelijke-rente" value="0" min="0" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 text-right shadow-sm sm:text-sm readonly-input" readonly placeholder="0.00"></div></div>
+                                                    <div class="flex justify-between items-center"><label for="schade-bgk" class="font-medium">Buitengerechtelijke Kosten (BGK):</label><div class="relative w-32"><div class="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center"><span class="text-gray-500">€</span></div><input type="number" id="schade-bgk" value="0" min="0" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 text-right shadow-sm sm:text-sm" placeholder="0.00"></div></div>
+                                                    <div class="flex justify-between items-center border-t pt-2"><span class="font-medium">Vordering (excl. aanspr.):</span><span id="schade-vordering-bruto" class="font-semibold text-base">€ 0,00</span></div>
+                                                    <div class="flex justify-between items-center"><label for="schade-aansprakelijkheid" class="font-medium">Aansprakelijkheid:</label><div class="relative w-24"><input type="number" id="schade-aansprakelijkheid" value="100" min="0" max="100" class="block w-full rounded-md border-gray-300 shadow-sm text-right pr-7 sm:text-sm"><div class="pointer-events-none absolute inset-y-0 right-0 pr-2 flex items-center"><span>%</span></div></div></div>
+                                                    <div class="flex justify-between items-center border-t pt-2"><span class="font-medium">Vordering (incl. aanspr.):</span><span id="schade-vordering-netto" class="font-semibold text-base">€ 0,00</span></div>
+                                                    <div class="flex justify-between items-center"><label for="schade-verrichte-betalingen" class="font-medium">Reeds betaald:</label><div class="relative w-32"><div class="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center"><span class="text-gray-500">€</span></div><input type="number" id="schade-verrichte-betalingen" value="0" min="0" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 text-right shadow-sm sm:text-sm" placeholder="0.00"></div></div>
+                                                    <div class="flex justify-between items-center bg-subtle p-3 rounded-lg border-t-4 border-primary mt-2"><span class="font-bold text-lg">Openstaand Saldo:</span><span id="schade-saldo" class="font-bold text-2xl text-primary">€ 0,00</span></div>
+                                                </div>
+                                                <footer class="mt-6 pt-6 border-t">
+                                                    <div class="flex flex-wrap justify-center gap-3">
+                                                        <button id="schade-save-data" class="bg-primary text-white px-4 py-2 rounded-md font-semibold hover:bg-primary-dark shadow-sm">Opslaan in Hub</button>
+                                                        <button id="schade-export-excel" class="bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 shadow-sm">Excel Export</button>
+                                                        <button id="schade-print-export" class="bg-gray-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-700 shadow-sm">Printen</button>
+                                                    </div>
+                                                    <p class="mt-4 text-center text-xs text-gray-500">Schadestaat onder voorbehoud van alle rechten en weren.</p>
+                                                </footer>
+                                            </section>
                                         </div>
-                                    </section>
-                                    <section class="bg-white p-6 rounded-lg shadow-md">
-                                        <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-primary">Totaaloverzicht</h2>
-                                        <div class="space-y-3 text-sm">
-                                            <div class="flex justify-between items-center"><span class="font-medium">Totaal schadeposten:</span><span id="schade-totaal-schade" class="font-semibold text-base">€ 0,00</span></div>
-                                            <div class="flex justify-between items-center"><label for="schade-wettelijke-rente" class="font-medium">Wettelijke Rente (auto):</label><div class="relative w-32"><div class="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center"><span class="text-gray-500">€</span></div><input type="number" id="schade-wettelijke-rente" value="0" min="0" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 text-right shadow-sm sm:text-sm readonly-input" readonly placeholder="0.00"></div></div>
-                                            <div class="flex justify-between items-center"><label for="schade-bgk" class="font-medium">Buitengerechtelijke Kosten (BGK):</label><div class="relative w-32"><div class="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center"><span class="text-gray-500">€</span></div><input type="number" id="schade-bgk" value="0" min="0" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 text-right shadow-sm sm:text-sm" placeholder="0.00"></div></div>
-                                            <div class="flex justify-between items-center border-t pt-2"><span class="font-medium">Vordering (excl. aanspr.):</span><span id="schade-vordering-bruto" class="font-semibold text-base">€ 0,00</span></div>
-                                            <div class="flex justify-between items-center"><label for="schade-aansprakelijkheid" class="font-medium">Aansprakelijkheid:</label><div class="relative w-24"><input type="number" id="schade-aansprakelijkheid" value="100" min="0" max="100" class="block w-full rounded-md border-gray-300 shadow-sm text-right pr-7 sm:text-sm"><div class="pointer-events-none absolute inset-y-0 right-0 pr-2 flex items-center"><span>%</span></div></div></div>
-                                            <div class="flex justify-between items-center border-t pt-2"><span class="font-medium">Vordering (incl. aanspr.):</span><span id="schade-vordering-netto" class="font-semibold text-base">€ 0,00</span></div>
-                                            <div class="flex justify-between items-center"><label for="schade-verrichte-betalingen" class="font-medium">Reeds betaald:</label><div class="relative w-32"><div class="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center"><span class="text-gray-500">€</span></div><input type="number" id="schade-verrichte-betalingen" value="0" min="0" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 text-right shadow-sm sm:text-sm" placeholder="0.00"></div></div>
-                                            <div class="flex justify-between items-center bg-subtle p-3 rounded-lg border-t-4 border-primary mt-2"><span class="font-bold text-lg">Openstaand Saldo:</span><span id="schade-saldo" class="font-bold text-2xl text-primary">€ 0,00</span></div>
-                                        </div>
-                                        <footer class="mt-6 pt-6 border-t">
-                                            <div class="flex flex-wrap justify-center gap-3">
-                                                <button id="schade-save-data" class="bg-primary text-white px-4 py-2 rounded-md font-semibold hover:bg-primary-dark shadow-sm">Opslaan in Hub</button>
-                                                <button id="schade-export-excel" class="bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 shadow-sm">Excel Export</button>
-                                                <button id="schade-print-export" class="bg-gray-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-700 shadow-sm">Printen</button>
-                                            </div>
-                                            <p class="mt-4 text-center text-xs text-gray-500">Schadestaat onder voorbehoud van alle rechten en weren.</p>
-                                        </footer>
-                                    </section>
+                                    </aside>
                                 </div>
-                            </aside>
-                          </div>
-                          <div id="schade-print-output" class="print-only p-8"></div>
-                        </div>
-                    `;
+                                  <div id="schade-print-output" class="print-only p-8"></div>
+                                </div>
+                            `;
 
         const schadepostenLijst = document.getElementById('schade-schadeposten-lijst');
         let validationTimer = null;
