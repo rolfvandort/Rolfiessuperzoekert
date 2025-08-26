@@ -1,12 +1,20 @@
 /**
  * @file search.js
- * @description Handles all client-side logic for the "Superzoeker" by calling our own backend function.
+ * @description Handles all client-side logic for the "Superzoeker".
  */
+
+// Globale state om de geladen filterdata op te slaan
+window.rechtsspraakData = {
+    instanties: [],
+    rechtsgebieden: [],
+    procedures: []
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
     const searchForm = document.getElementById('jurisprudentie-form');
     const searchButton = document.querySelector('button[form="jurisprudentie-form"]');
+    const resetButton = document.getElementById('jurisprudentie-reset-btn');
     const resultsContainer = document.getElementById('results-container');
     const loadingIndicator = document.getElementById('loading-indicator');
     const errorMessageDiv = document.getElementById('error-message');
@@ -15,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevPageBtn = document.getElementById('prev-page');
     const nextPageBtn = document.getElementById('next-page');
     const paginationContainer = document.getElementById('jurisprudentie-pagination');
+    const filtersLoadingIndicator = document.getElementById('filters-loading-indicator');
 
     const contentModal = document.getElementById('content-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -27,59 +36,168 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMax = 50;
 
     // --- Mappings & Constants ---
-    const API_BACKEND_URL = '/api/search'; // Onze eigen Netlify serverless-functie!
-    const subjectMap = {
-        'Civiel recht': 'http://psi.rechtspraak.nl/rechtsgebied#civiel',
-        'Strafrecht': 'http://psi.rechtspraak.nl/rechtsgebied#strafrecht',
-        'Bestuursrecht': 'http://psi.rechtspraak.nl/rechtsgebied#bestuursrecht', // Komma was hier missing
-        'Internationaal publiekrecht': 'http://psi.rechtspraak.nl/rechtsgebied#Internationaal publiekrecht'
-    };
+    const API_BACKEND_URL = '/api/search';
+    const API_CONTENT_URL = '/api/search-content';
 
     /**
-     * Builds the query URL for our own backend function.
-     * @returns {string} The complete, URL-encoded API endpoint.
+     * Initialiseert de Superzoeker door de benodigde filterdata op te halen en te verwerken.
+     */
+    async function initializeSuperZoeker() {
+        try {
+            const [instantiesXml, rechtsgebiedenXml, proceduresXml] = await Promise.all([
+                fetch('/api-data/Instanties.xml').then(res => res.text()),
+                fetch('/api-data/Rechtsgebieden.xml').then(res => res.text()),
+                fetch('/api-data/Proceduresoorten.xml').then(res => res.text())
+            ]);
+
+            const parser = new DOMParser();
+
+            // Verwerk Instanties
+            const instantiesDoc = parser.parseFromString(instantiesXml, "application/xml");
+            window.rechtsspraakData.instanties = Array.from(instantiesDoc.querySelectorAll('Instantie')).map(node => ({
+                naam: node.querySelector('Naam').textContent.trim(),
+                identifier: node.querySelector('Identifier').textContent.trim(),
+                afkorting: node.querySelector('Afkorting')?.textContent.trim() || ''
+            }));
+            populateInstantiesDatalist();
+
+            // Verwerk Rechtsgebieden
+            const rechtsgebiedenDoc = parser.parseFromString(rechtsgebiedenXml, "application/xml");
+            window.rechtsspraakData.rechtsgebieden = Array.from(rechtsgebiedenDoc.querySelector('Rechtsgebieden').children).map(parseRechtsgebiedNode);
+            populateRechtsgebiedenTree();
+            
+            // Verwerk Procedures
+            const proceduresDoc = parser.parseFromString(proceduresXml, "application/xml");
+            window.rechtsspraakData.procedures = Array.from(proceduresDoc.querySelectorAll('Proceduresoort')).map(node => ({
+                naam: node.querySelector('Naam').textContent.trim(),
+                identifier: node.querySelector('Identifier').textContent.trim()
+            })).sort((a,b) => a.naam.localeCompare(b.naam));
+            populateProceduresList();
+            
+            filtersLoadingIndicator.textContent = 'Klaar';
+            filtersLoadingIndicator.classList.add('text-green-600');
+        } catch (error) {
+            console.error("Fout bij laden van filterdata:", error);
+            filtersLoadingIndicator.textContent = 'Fout bij laden';
+            filtersLoadingIndicator.classList.add('text-red-600');
+        }
+    }
+    
+    /**
+     * Helper functies voor het vullen van de UI
+     */
+    function populateInstantiesDatalist() {
+        const datalist = document.getElementById('instanties-datalist');
+        window.rechtsspraakData.instanties.forEach(inst => {
+            const option = document.createElement('option');
+            option.value = inst.naam;
+            option.textContent = inst.afkorting ? `(${inst.afkorting})` : '';
+            datalist.appendChild(option);
+        });
+    }
+
+    function parseRechtsgebiedNode(node) {
+        const children = Array.from(node.querySelectorAll(':scope > Rechtsgebied')).map(parseRechtsgebiedNode);
+        return {
+            naam: node.querySelector(':scope > Naam').textContent.trim(),
+            identifier: node.querySelector(':scope > Identifier').textContent.trim(),
+            children: children
+        };
+    }
+
+    function populateRechtsgebiedenTree() {
+        const container = document.getElementById('subject-container');
+        const treeHtml = window.rechtsspraakData.rechtsgebieden.map(createRechtsgebiedNodeHtml).join('');
+        container.innerHTML = `<ul>${treeHtml}</ul>`;
+    }
+
+    function createRechtsgebiedNodeHtml(node) {
+        const childrenHtml = node.children.length > 0 ? `<ul>${node.children.map(createRechtsgebiedNodeHtml).join('')}</ul>` : '';
+        const nodeHtml = `<li>
+            <label class="flex items-center space-x-2 text-sm">
+                <input type="checkbox" name="subject" class="rounded" data-identifier="${node.identifier}">
+                <span>${node.naam}</span>
+            </label>
+            ${childrenHtml}
+        </li>`;
+        return node.children.length > 0 ? `<details><summary>${node.naam}</summary>${childrenHtml}</details>` : nodeHtml;
+    }
+    
+    function populateProceduresList() {
+        const container = document.getElementById('procedure-container');
+        container.innerHTML = '<ul>' + window.rechtsspraakData.procedures.map(proc => `
+            <li>
+                <label class="flex items-center space-x-2 text-sm">
+                    <input type="checkbox" name="procedure" class="rounded" data-identifier="${proc.identifier}">
+                    <span>${proc.naam}</span>
+                </label>
+            </li>
+        `).join('') + '</ul>';
+    }
+
+
+    /**
+     * Bouwt de query URL voor onze eigen backend functie.
+     * @returns {string} De complete, URL-encoded API endpoint.
      */
     function buildQueryUrl() {
         const params = new URLSearchParams();
         const formData = new FormData(searchForm);
 
-        currentMax = parseInt(formData.get('max-results'), 10) || 50;
+        currentMax = parseInt(formData.get('max'), 10) || 50;
         
-        params.append('type', formData.get('doc-type'));
-        if (formData.get('date-from')) params.append('date', formData.get('date-from'));
-        if (formData.get('date-to')) params.append('date', formData.get('date-to'));
-        if (formData.get('modified-from')) params.append('modified', formData.get('modified-from') + ':00');
-        if (formData.get('modified-to')) params.append('modified', formData.get('modified-to') + ':00');
+        // Vrije tekst en ID
+        if (formData.get('q')) params.append('q', formData.get('q'));
+        if (formData.get('id')) params.append('id', formData.get('id'));
+
+        // Vertaal 'Type'
+        const docType = formData.get('type');
+        if (docType === 'Uitspraak') params.append('type', 'http://psi.rechtspraak.nl/rechtsgebied#uitspraak');
+        if (docType === 'Conclusie') params.append('type', 'http://psi.rechtspraak.nl/rechtsgebied#conclusie');
         
-        const subject = formData.get('subject');
-        if (subject && subjectMap[subject]) {
-            params.append('subject', subjectMap[subject]);
+        // Vertaal 'Instantie'
+        const creatorName = formData.get('creator').trim();
+        if (creatorName) {
+            const inst = window.rechtsspraakData.instanties.find(i => i.naam.toLowerCase() === creatorName.toLowerCase() || i.afkorting.toLowerCase() === creatorName.toLowerCase());
+            if (inst) params.append('creator', inst.identifier);
+            else params.append('creator', creatorName); // Fallback voor als de gebruiker iets intypt wat niet in de lijst staat
         }
         
-        if (formData.get('creator')) params.append('creator', formData.get('creator').trim());
-
+        // Verzamel geselecteerde Rechtsgebieden
+        const selectedSubjects = Array.from(document.querySelectorAll('#subject-container input[name="subject"]:checked'))
+            .map(cb => cb.dataset.identifier).join(',');
+        if (selectedSubjects) params.append('subject', selectedSubjects);
+        
+        // Verzamel geselecteerde Procedures
+        const selectedProcedures = Array.from(document.querySelectorAll('#procedure-container input[name="procedure"]:checked'))
+            .map(cb => cb.dataset.identifier).join(',');
+        if (selectedProcedures) params.append('procedure', selectedProcedures);
+            
+        // Datums
+        if (formData.get('date-from')) params.append('date-start', formData.get('date-from'));
+        if (formData.get('date-to')) params.append('date-end', formData.get('date-to'));
+        if (formData.get('issued-from')) params.append('issued-start', formData.get('issued-from'));
+        if (formData.get('issued-to')) params.append('issued-end', formData.get('issued-to'));
+        
+        // Paginatie en sortering
         params.append('max', currentMax);
         params.append('from', currentPageOffset);
-        
-        if (formData.get('sort-order') === 'DESC') {
-            params.append('sort', 'date');
-        }
+        if (formData.get('return-sort') === 'ASC') params.append('sort', 'date');
 
+        // Vereist formaat
         params.append('return', 'atom');
 
         return `${API_BACKEND_URL}?${params.toString()}`;
     }
 
     /**
-     * Performs the search by fetching data from our backend.
-     * @param {boolean} isPagination - Indicates if this is a new search or a pagination action.
+     * Voert de zoekopdracht uit.
      */
     async function performSearch(isPagination = false) {
         if (!isPagination) {
             currentPageOffset = 0;
         }
 
-        // --- UI Feedback Start ---
         loadingIndicator.classList.remove('hidden');
         resultsContainer.innerHTML = '';
         errorMessageDiv.classList.add('hidden');
@@ -95,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                // Toon de specifieke foutmelding van de backend
                 throw new Error(data.error || 'Er is een onbekende fout opgetreden.');
             }
             
@@ -106,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             handleError(error.message);
         } finally {
-            // --- UI Feedback Einde ---
             loadingIndicator.classList.add('hidden');
             searchButton.disabled = false;
             searchButton.textContent = 'Zoeken';
@@ -114,13 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Displays the search results from the clean JSON object.
-     * @param {Array} results - An array of result objects from our backend.
+     * Toont de zoekresultaten in de UI.
      */
     function displayResults(results) {
         if (results.length === 0) {
             errorMessageDiv.textContent = 'Geen resultaten gevonden voor deze zoekopdracht.';
             errorMessageDiv.classList.remove('hidden');
+            resultsSummarySpan.textContent = 'Totaal: 0';
             return;
         }
 
@@ -139,19 +255,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Handles and displays error messages in the UI.
-     * @param {string} message - The error message to display.
+     * Toont foutmeldingen in de UI.
      */
     function handleError(message) {
         resultsContainer.innerHTML = '';
-        errorMessageDiv.textContent = message;
+        errorMessageDiv.textContent = `Fout: ${message}`;
         errorMessageDiv.classList.remove('hidden');
         resultsSummarySpan.textContent = '';
         paginationContainer.style.visibility = 'hidden';
     }
 
     /**
-     * Updates the pagination controls.
+     * Werkt de paginatie-knoppen en informatie bij.
      */
     function updatePagination() {
         resultsSummarySpan.textContent = `Totaal: ${totalResults}`;
@@ -168,40 +283,59 @@ document.addEventListener('DOMContentLoaded', () => {
             paginationContainer.style.visibility = 'hidden';
         }
     }
-
+    
+    /**
+     * Haalt de volledige inhoud van een uitspraak op via de backend proxy.
+     */
     async function fetchFullContent(ecli) {
-        // Deze functie kan hetzelfde blijven, aangezien de content API wellicht andere CORS-regels heeft
-        // of we kunnen hiervoor ook een backend proxy maken als het nodig is. Voor nu laten we het zo.
         modalTitle.textContent = ecli;
-        modalContent.innerHTML = '<div id="jurisprudentie-loader"></div>';
+        modalContent.innerHTML = '<div class="flex justify-center items-center h-full"><div id="jurisprudentie-loader"></div></div>';
         contentModal.classList.remove('hidden');
         
-        // We gebruiken een proxy voor de content-API voor de zekerheid en consistentie.
-        const url = `/api/search-content?id=${encodeURIComponent(ecli)}`; // Aanname: we maken een tweede proxy-functie
-        
-        // Omdat we geen tweede functie hebben afgesproken, gebruiken we voor nu de directe call.
-        // Als dit faalt met CORS, is de volgende stap een 'search-content' functie te maken.
-        const directUrl = `https://data.rechtspraak.nl/uitspraken/content?id=${encodeURIComponent(ecli)}`;
+        const url = `${API_CONTENT_URL}?id=${encodeURIComponent(ecli)}`;
 
         try {
-            const response = await fetch(directUrl);
-            if (!response.ok) throw new Error(`API Fout: ${response.statusText}`);
+            const response = await fetch(url);
+            if (!response.ok) {
+                 const errorData = await response.json();
+                 throw new Error(errorData.error || `API Fout: ${response.statusText}`);
+            }
             
             const xmlString = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, "application/xml");
             
+            // Controleer op parserfouten
+            const parserError = xmlDoc.querySelector("parsererror");
+            if (parserError) {
+                console.error("XML Parse Error:", parserError.textContent);
+                throw new Error("Ongeldig XML-formaat ontvangen van de server.");
+            }
+            
             const contentElement = xmlDoc.querySelector('uitspraak, conclusie');
-            modalContent.innerHTML = contentElement ? contentElement.innerHTML : '<p>De volledige inhoud kon niet worden geladen.</p>';
+            if (contentElement) {
+                // Sanitize de HTML voordat je deze injecteert om XSS te voorkomen
+                // Een simpele textContent-based sanitization
+                let sanitizedHtml = new XMLSerializer().serializeToString(contentElement);
+                modalContent.innerHTML = sanitizedHtml;
+            } else {
+                 modalContent.innerHTML = '<p>De volledige inhoud kon niet worden gevonden in het ontvangen document.</p>';
+            }
 
         } catch (error) {
-            modalContent.innerHTML = `<p class="text-red-500">Kon inhoud niet laden. Het is mogelijk dat de directe API-aanroep ook door CORS wordt geblokkeerd. Fout: ${error.message}</p>`;
+            modalContent.innerHTML = `<p class="text-red-500">Kon inhoud niet laden. Fout: ${error.message}</p>`;
         }
     }
 
     // --- Event Listeners Setup ---
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        performSearch(false);
+    });
+    
+    resetButton.addEventListener('click', () => {
+        searchForm.reset();
+        document.querySelectorAll('.filter-checkbox-container input').forEach(cb => cb.checked = false);
         performSearch(false);
     });
 
@@ -231,4 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
     contentModal.addEventListener('click', (e) => {
         if (e.target === contentModal) contentModal.classList.add('hidden');
     });
+    
+    // Initialiseer de filters wanneer de pagina wordt getoond
+    initializeSuperZoeker();
 });
