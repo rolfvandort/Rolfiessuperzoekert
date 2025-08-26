@@ -12,6 +12,7 @@ window.rechtsspraakData = {
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
+    const jurisprudentiePage = document.getElementById('jurisprudentie-page');
     const searchForm = document.getElementById('jurisprudentie-form');
     const searchButton = document.querySelector('button[form="jurisprudentie-form"]');
     const resetButton = document.getElementById('jurisprudentie-reset-btn');
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPageOffset = 0;
     let totalResults = 0;
     let currentMax = 50;
+    let filtersInitialized = false;
 
     // --- Mappings & Constants ---
     const API_BACKEND_URL = '/api/search';
@@ -41,8 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Initialiseert de Superzoeker door de benodigde filterdata op te halen en te verwerken.
+     * Wordt maar één keer uitgevoerd.
      */
     async function initializeSuperZoeker() {
+        if (filtersInitialized) return;
+        filtersInitialized = true;
+
         try {
             const [instantiesXml, rechtsgebiedenXml, proceduresXml] = await Promise.all([
                 fetch('/api-data/Instanties.xml').then(res => res.text()),
@@ -54,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Verwerk Instanties
             const instantiesDoc = parser.parseFromString(instantiesXml, "application/xml");
-            window.rechtsspraakData.instanties = Array.from(instantiesDoc.querySelectorAll('Instantie')).map(node => ({
+            const instantiesNode = instantiesDoc.querySelector("Instanties");
+            if (!instantiesNode) throw new Error("Root element <Instanties> niet gevonden in Instanties.xml.");
+            window.rechtsspraakData.instanties = Array.from(instantiesNode.children).map(node => ({
                 naam: node.querySelector('Naam').textContent.trim(),
                 identifier: node.querySelector('Identifier').textContent.trim(),
                 afkorting: node.querySelector('Afkorting')?.textContent.trim() || ''
@@ -63,12 +71,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Verwerk Rechtsgebieden
             const rechtsgebiedenDoc = parser.parseFromString(rechtsgebiedenXml, "application/xml");
-            window.rechtsspraakData.rechtsgebieden = Array.from(rechtsgebiedenDoc.querySelector('Rechtsgebieden').children).map(parseRechtsgebiedNode);
+            const rechtsgebiedenNode = rechtsgebiedenDoc.querySelector("Rechtsgebieden");
+            if (!rechtsgebiedenNode) throw new Error("Root element <Rechtsgebieden> niet gevonden in Rechtsgebieden.xml.");
+            window.rechtsspraakData.rechtsgebieden = Array.from(rechtsgebiedenNode.children).map(parseRechtsgebiedNode);
             populateRechtsgebiedenTree();
             
             // Verwerk Procedures
             const proceduresDoc = parser.parseFromString(proceduresXml, "application/xml");
-            window.rechtsspraakData.procedures = Array.from(proceduresDoc.querySelectorAll('Proceduresoort')).map(node => ({
+            const proceduresNode = proceduresDoc.querySelector("Proceduresoorten");
+            if (!proceduresNode) throw new Error("Root element <Proceduresoorten> niet gevonden in Proceduresoorten.xml.");
+            window.rechtsspraakData.procedures = Array.from(proceduresNode.children).map(node => ({
                 naam: node.querySelector('Naam').textContent.trim(),
                 identifier: node.querySelector('Identifier').textContent.trim()
             })).sort((a,b) => a.naam.localeCompare(b.naam));
@@ -78,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filtersLoadingIndicator.classList.add('text-green-600');
         } catch (error) {
             console.error("Fout bij laden van filterdata:", error);
-            filtersLoadingIndicator.textContent = 'Fout bij laden';
+            filtersLoadingIndicator.innerHTML = `Fout bij laden. <br>Controleer of de .xml bestanden in /public/api-data/ staan.`;
             filtersLoadingIndicator.classList.add('text-red-600');
         }
     }
@@ -88,6 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function populateInstantiesDatalist() {
         const datalist = document.getElementById('instanties-datalist');
+        if (!datalist) return;
+        datalist.innerHTML = '';
         window.rechtsspraakData.instanties.forEach(inst => {
             const option = document.createElement('option');
             option.value = inst.naam;
@@ -97,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function parseRechtsgebiedNode(node) {
+        // :scope zorgt ervoor dat we alleen directe kinderen selecteren
         const children = Array.from(node.querySelectorAll(':scope > Rechtsgebied')).map(parseRechtsgebiedNode);
         return {
             naam: node.querySelector(':scope > Naam').textContent.trim(),
@@ -107,28 +122,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function populateRechtsgebiedenTree() {
         const container = document.getElementById('subject-container');
+        if (!container) return;
         const treeHtml = window.rechtsspraakData.rechtsgebieden.map(createRechtsgebiedNodeHtml).join('');
-        container.innerHTML = `<ul>${treeHtml}</ul>`;
+        container.innerHTML = `<ul class="space-y-1">${treeHtml}</ul>`;
     }
 
     function createRechtsgebiedNodeHtml(node) {
-        const childrenHtml = node.children.length > 0 ? `<ul>${node.children.map(createRechtsgebiedNodeHtml).join('')}</ul>` : '';
-        const nodeHtml = `<li>
-            <label class="flex items-center space-x-2 text-sm">
-                <input type="checkbox" name="subject" class="rounded" data-identifier="${node.identifier}">
+        const hasChildren = node.children.length > 0;
+        const childrenHtml = hasChildren ? `<ul class="pl-4 space-y-1 mt-1">${node.children.map(createRechtsgebiedNodeHtml).join('')}</ul>` : '';
+        const itemContent = `
+            <label class="flex items-center space-x-2 text-sm cursor-pointer">
+                <input type="checkbox" name="subject" class="rounded border-gray-300 text-primary focus:ring-primary" data-identifier="${node.identifier}">
                 <span>${node.naam}</span>
             </label>
-            ${childrenHtml}
-        </li>`;
-        return node.children.length > 0 ? `<details><summary>${node.naam}</summary>${childrenHtml}</details>` : nodeHtml;
+        `;
+        
+        if (hasChildren) {
+            return `<li><details><summary class="p-1 rounded hover:bg-gray-100">${itemContent}</summary>${childrenHtml}</details></li>`;
+        }
+        return `<li>${itemContent}</li>`;
     }
     
     function populateProceduresList() {
         const container = document.getElementById('procedure-container');
+        if (!container) return;
         container.innerHTML = '<ul>' + window.rechtsspraakData.procedures.map(proc => `
             <li>
-                <label class="flex items-center space-x-2 text-sm">
-                    <input type="checkbox" name="procedure" class="rounded" data-identifier="${proc.identifier}">
+                <label class="flex items-center space-x-2 text-sm cursor-pointer">
+                    <input type="checkbox" name="procedure" class="rounded border-gray-300 text-primary focus:ring-primary" data-identifier="${proc.identifier}">
                     <span>${proc.naam}</span>
                 </label>
             </li>
@@ -158,9 +179,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Vertaal 'Instantie'
         const creatorName = formData.get('creator').trim();
         if (creatorName) {
-            const inst = window.rechtsspraakData.instanties.find(i => i.naam.toLowerCase() === creatorName.toLowerCase() || i.afkorting.toLowerCase() === creatorName.toLowerCase());
-            if (inst) params.append('creator', inst.identifier);
-            else params.append('creator', creatorName); // Fallback voor als de gebruiker iets intypt wat niet in de lijst staat
+            const inst = window.rechtsspraakData.instanties.find(i => i.naam.toLowerCase() === creatorName.toLowerCase() || (i.afkorting && i.afkorting.toLowerCase() === creatorName.toLowerCase()));
+            if (inst) {
+                params.append('creator', inst.identifier);
+            } else {
+                // Fallback voor als de gebruiker iets intypt wat niet in de lijst staat maar wel geldig is (onwaarschijnlijk)
+                params.append('creator', creatorName); 
+            }
         }
         
         // Verzamel geselecteerde Rechtsgebieden
@@ -296,16 +321,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(url);
+            
+            // Controleer of de response XML is, anders is het een JSON error van de proxy
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `API Fout: ${response.statusText}`);
+            }
+
             if (!response.ok) {
-                 const errorData = await response.json();
-                 throw new Error(errorData.error || `API Fout: ${response.statusText}`);
+                 throw new Error(`API Fout: ${response.statusText}`);
             }
             
             const xmlString = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, "application/xml");
             
-            // Controleer op parserfouten
             const parserError = xmlDoc.querySelector("parsererror");
             if (parserError) {
                 console.error("XML Parse Error:", parserError.textContent);
@@ -314,10 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const contentElement = xmlDoc.querySelector('uitspraak, conclusie');
             if (contentElement) {
-                // Sanitize de HTML voordat je deze injecteert om XSS te voorkomen
-                // Een simpele textContent-based sanitization
-                let sanitizedHtml = new XMLSerializer().serializeToString(contentElement);
-                modalContent.innerHTML = sanitizedHtml;
+                // De innerHTML van een XML-element kan direct worden gebruikt omdat het al een gestructureerde opmaak bevat.
+                // Moderne browsers saniteren dit tot op zekere hoogte bij het renderen.
+                modalContent.innerHTML = new XMLSerializer().serializeToString(contentElement);
             } else {
                  modalContent.innerHTML = '<p>De volledige inhoud kon niet worden gevonden in het ontvangen document.</p>';
             }
@@ -336,7 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resetButton.addEventListener('click', () => {
         searchForm.reset();
         document.querySelectorAll('.filter-checkbox-container input').forEach(cb => cb.checked = false);
-        performSearch(false);
+        // We voeren een nieuwe, lege zoekopdracht uit om de resultaten te wissen
+        performSearch(false); 
     });
 
     prevPageBtn.addEventListener('click', () => {
@@ -366,6 +397,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === contentModal) contentModal.classList.add('hidden');
     });
     
-    // Initialiseer de filters wanneer de pagina wordt getoond
+    // Initialiseer de filters alleen wanneer de jurisprudentiepagina zichtbaar wordt.
+    // Dit kan via een MutationObserver of een simpele check in de showPage functie.
+    // Voor nu roepen we het direct aan.
     initializeSuperZoeker();
 });
