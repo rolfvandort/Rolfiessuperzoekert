@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.rechtsspraakData.procedures = Array.from(proceduresNode.children).map(node => ({
                 naam: node.querySelector('Naam').textContent.trim(),
                 identifier: node.querySelector('Identifier').textContent.trim()
-            })).sord((a,b) => a.naam.localeCompare(b.naam));
+            })).sort((a,b) => a.naam.localeCompare(b.naam));
             populateProceduresList();
             
             filtersLoadingIndicator.textContent = 'Klaar';
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Paginatie en sortering
         params.append('max', currentMax);
         params.append('from', currentPageOffset);
-        if (formData.get('return-sord') === 'DESC') {
+        if (formData.get('return-sort') === 'DESC') {
             params.append('sord', 'DESC');
         }
 
